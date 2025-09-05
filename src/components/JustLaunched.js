@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import ivyslide1 from '../images/orchidivy/ivy-1.jpg';
 import ivyslide2 from '../images/orchidivy/ivy-2.jpg';
 import ivyslide3 from '../images/orchidivy/ivy-3.jpg';
@@ -44,7 +44,7 @@ const JustLaunched = ({ onBookNowClick }) => {
     }
   ];
 
-  const nextSlide = () => {
+  const nextSlide = useCallback(() => {
     if (isTransitioning) return;
     
     setIsTransitioning(true);
@@ -53,9 +53,9 @@ const JustLaunched = ({ onBookNowClick }) => {
     setTimeout(() => {
       setIsTransitioning(false);
     }, 500);
-  };
+  }, [isTransitioning, projectImages.length]);
 
-  const prevSlide = () => {
+  const prevSlide = useCallback(() => {
     if (isTransitioning) return;
     
     setIsTransitioning(true);
@@ -64,7 +64,7 @@ const JustLaunched = ({ onBookNowClick }) => {
     setTimeout(() => {
       setIsTransitioning(false);
     }, 500);
-  };
+  }, [isTransitioning, projectImages.length]);
 
   // Auto-slide functionality
   useEffect(() => {
@@ -74,17 +74,6 @@ const JustLaunched = ({ onBookNowClick }) => {
 
     return () => clearInterval(interval);
   }, [nextSlide]);
-
-  const goToSlide = (index) => {
-    if (isTransitioning || index === currentIndex) return;
-    
-    setIsTransitioning(true);
-    setCurrentIndex(index);
-    
-    setTimeout(() => {
-      setIsTransitioning(false);
-    }, 500);
-  };
 
   const handleBookNow = () => {
     if (onBookNowClick) {
