@@ -873,6 +873,7 @@
 .cta-content {
   position: relative;
   z-index: 2;
+  padding: 30px;
   text-align: center;
   color: white;
   max-width: 800px;

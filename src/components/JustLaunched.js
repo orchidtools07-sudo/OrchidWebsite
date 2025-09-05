@@ -108,16 +108,7 @@ const JustLaunched = ({ onBookNowClick }) => {
                 </div>
                 
                 {/* Navigation Arrows */}
-                <button className="simple-nav prev" onClick={prevSlide}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M15 18L9 12L15 6"/>
-                  </svg>
-                </button>
-                <button className="simple-nav next" onClick={nextSlide}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M9 18L15 12L9 6"/>
-                  </svg>
-                </button>
+            
               </div>
               
               {/* Slider Dots */}
