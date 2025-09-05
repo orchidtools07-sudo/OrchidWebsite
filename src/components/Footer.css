@@ -149,7 +149,7 @@
 }
 
 .call-btn {
-  background: #2B5786;
+  background: linear-gradient(135deg, #2B5786 0%, #1e3f5f 50%, #0d1b2a 100%);
   color: white;
 }
 

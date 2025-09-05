@@ -1,7 +1,7 @@
 import React from 'react';
 import HeroVideo from '../images/hero-video.mp4';
 
-const HeroSection = () => {
+const HeroSection = ({ onContactClick }) => {
   return (
     <section className="hero-section" style={{ 
       width: '100%', 
@@ -96,18 +96,22 @@ const HeroSection = () => {
             }}>
               Explore Projects
             </button>
-            <button className="btn-secondary" style={{
-              padding: '15px 30px',
-              backgroundColor: 'transparent',
-              color: 'white',
-              border: '2px solid white',
-              borderRadius: '8px',
-              fontSize: '1.1rem',
-              fontWeight: '600',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              boxShadow: '0 4px 15px rgba(255,255,255,0.1)'
-            }}>
+            <button 
+              className="btn-secondary" 
+              onClick={onContactClick}
+              style={{
+                padding: '15px 30px',
+                backgroundColor: 'transparent',
+                color: 'white',
+                border: '2px solid white',
+                borderRadius: '8px',
+                fontSize: '1.1rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                boxShadow: '0 4px 15px rgba(255,255,255,0.1)'
+              }}
+            >
               Contact Us
             </button>
           </div>

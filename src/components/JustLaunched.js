@@ -5,7 +5,8 @@ import ivyslide2 from '../images/orchidivy/ivy-2.jpg';
 import ivyslide3 from '../images/orchidivy/ivy-3.jpg';
 import ivyslide4 from '../images/orchidivy/ivy-4.jpg';
 import ivyslide5 from '../images/orchidivy/ivy-5.jpg';
-const JustLaunched = () => {
+
+const JustLaunched = ({ onBookNowClick }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const sliderRef = useRef();
@@ -87,8 +88,9 @@ const JustLaunched = () => {
   };
 
   const handleBookNow = () => {
-    // Add booking functionality here
-    console.log('Book Now clicked for Orchid IVY');
+    if (onBookNowClick) {
+      onBookNowClick();
+    }
   };
 
   return (
@@ -158,7 +160,7 @@ const JustLaunched = () => {
             <div className="project-highlights">
               <div className="highlight-item">
                 <span className="highlight-icon">🏠</span>
-                <span>4 BHK Premium Apartments</span>
+                <span>3&4 BHK Low Rise Floor</span>
               </div>
               <div className="highlight-item">
                 <span className="highlight-icon">🌟</span>
@@ -168,10 +170,13 @@ const JustLaunched = () => {
             </div>
             
             <div className="cta-section">
-              <button className="book-now-btn" onClick={handleBookNow}>
-                <span className="btn-text">Book Now</span>
+              <button 
+                className="book-now-btn"
+                onClick={handleBookNow}
+              >
+                <span>Book Now</span>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                  <path d="M7 17L17 7M17 7H7M17 7V17"/>
                 </svg>
               </button>
            

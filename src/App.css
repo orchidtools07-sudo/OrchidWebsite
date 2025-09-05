@@ -79,9 +79,9 @@ main {
 /* Project Grid */
 .projects-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 30px;
-  margin-top: 50px;
+  grid-template-columns: repeat(auto-fit, minmax(272px, 1fr));
+  gap: 11px;
+  margin-top: 0;
 }
 
 .project-card {

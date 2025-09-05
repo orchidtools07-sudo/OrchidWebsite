@@ -1,6 +1,6 @@
 import React from 'react';
 
-const CTASection = () => {
+const CTASection = ({ onContactClick }) => {
   return (
     <section className="cta-section-elegant">
       <div className="cta-container">
@@ -10,7 +10,7 @@ const CTASection = () => {
             <p className="cta-subtitle">Ready to transform your real estate dreams into reality? Our expert team is here to guide you through every step of the process.</p>
           </div>
           <div className="cta-action">
-            <button className="cta-btn-primary">
+            <button className="cta-btn-primary" onClick={onContactClick}>
               <span>Contact Now</span>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M5 12h14M12 5l7 7-7 7"/>
