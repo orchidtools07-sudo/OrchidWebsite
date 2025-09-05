@@ -63,24 +63,6 @@ const Header = () => {
                 </li>
                 <li className="nav-item">
                   <Link 
-                    to="/residential" 
-                    className={location.pathname === '/residential' ? 'active' : ''}
-                    onClick={closeMenu}
-                  >
-                    Residential
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link 
-                    to="/commercial" 
-                    className={location.pathname === '/commercial' ? 'active' : ''}
-                    onClick={closeMenu}
-                  >
-                    Commercial
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link 
                     to="/hospitality" 
                     className={location.pathname === '/hospitality' ? 'active' : ''}
                     onClick={closeMenu}

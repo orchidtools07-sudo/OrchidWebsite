@@ -40,9 +40,9 @@ const Footer = () => {
           
           <div className="footer-social">
             <a href="https://facebook.com" className="social-icon facebook" aria-label="Facebook"></a>
-            <a href="https://twitter.com" className="social-icon twitter" aria-label="Twitter"></a>
             <a href="https://instagram.com" className="social-icon instagram" aria-label="Instagram"></a>
             <a href="https://linkedin.com" className="social-icon linkedin" aria-label="LinkedIn"></a>
+            <a href="https://google.com" className="social-icon google" aria-label="Google"></a>
           </div>
         </div>
       </footer>

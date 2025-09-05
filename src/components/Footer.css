@@ -1,125 +1,198 @@
 .footer {
-  background: #2B5786;
+  background: linear-gradient(135deg, #1e3f5f 0%, #2B5786 50%, #1a4d6b 100%);
   color: white;
   padding: 0;
   width: 100%;
   margin: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.5), transparent);
 }
 
 .footer-top {
-  background: #333;
-  padding: 20px 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+  padding: 3rem 0;
   text-align: center;
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .footer-nav {
   display: flex;
   justify-content: center;
-  gap: 5px;
-  flex-wrap: wrap;
+  gap: 1.8rem;
+  flex-wrap: nowrap;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.footer-nav::-webkit-scrollbar {
+  display: none;
 }
 
 .footer-nav a {
-  color: white;
+  color: rgba(255, 255, 255, 0.85);
   text-decoration: none;
-  font-weight: 400;
-  font-size: 0.95rem;
-  transition: color 0.3s ease;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  padding: 0.6rem 1.2rem;
+  border-radius: 30px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  white-space: nowrap;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+}
+
+.footer-nav a::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 215, 0, 0.05));
+  transition: all 0.4s ease;
+  border-radius: 30px;
+  z-index: -1;
 }
 
 .footer-nav a:hover {
   color: #ffd700;
+  background: rgba(255, 215, 0, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 215, 0, 0.2);
+  border-color: rgba(255, 215, 0, 0.3);
+}
+
+.footer-nav a:hover::before {
+  width: 100%;
 }
 
 .footer-bottom {
-  background: #333333;
-  padding: 20px 40px;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.2));
+  padding: 2.5rem 3rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   width: 100%;
   box-sizing: border-box;
+  backdrop-filter: blur(15px);
 }
 
 .footer-bottom-left p {
-  color: #cccccc;
-  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.95rem;
   margin: 0;
   font-weight: 400;
+  letter-spacing: 0.5px;
 }
 
 .footer-logo {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 5px;
+  gap: 0.5rem;
+  position: relative;
 }
 
-.logo-graphic {
-
-  background: #2B5786;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #333;
-  font-weight: 700;
-  font-size: 1.2rem;
+.footer-logo img {
+  height: 50px;
+  width: auto;
+  filter: brightness(1.1) contrast(1.1);
+  transition: all 0.3s ease;
 }
 
-.footer-logo h2 {
-  color: white;
-  font-size: 1.2rem;
-  font-weight: 700;
-  margin: 0;
-}
-
-.footer-logo p {
-  color: #cccccc;
-  font-size: 0.7rem;
-  margin: 0;
-  font-weight: 400;
-  letter-spacing: 0.5px;
+.footer-logo:hover img {
+  transform: scale(1.05);
+  filter: brightness(1.2) contrast(1.2);
 }
 
 .footer-social {
   display: flex;
-  gap: 15px;
+  gap: 1rem;
   align-items: center;
 }
 
 .social-icon {
-  width: 32px;
-  height: 32px;
-  background: #666666;
+  width: 45px;
+  height: 45px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: rgba(255, 255, 255, 0.9);
   text-decoration: none;
-  font-size: 0.8rem;
-  transition: background-color 0.3s ease;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
 }
 
 .social-icon:hover {
-  background: #888888;
+  background: linear-gradient(135deg, #ffd700, #ffed4a);
+  color: #2B5786;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3);
+  border-color: rgba(255, 215, 0, 0.5);
 }
 
-.social-icon.facebook::before {
+.social-icon.facebook::after {
   content: 'f';
+  font-size: 1.4rem;
+  font-weight: bold;
+  font-family: Arial, sans-serif;
 }
 
-.social-icon.twitter::before {
-  content: 't';
+.social-icon.instagram::after {
+  content: '�';
+  font-size: 1.3rem;
 }
 
-.social-icon.instagram::before {
-  content: 'i';
-}
-
-.social-icon.linkedin::before {
+.social-icon.linkedin::after {
   content: 'in';
+  font-size: 0.9rem;
+  font-weight: bold;
+  font-family: Arial, sans-serif;
+}
+
+.social-icon.google::after {
+  content: 'G';
+  font-size: 1.4rem;
+  font-weight: bold;
+  font-family: Arial, sans-serif;
+}
+
+.social-icon::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.social-icon:hover::before {
+  left: 100%;
 }
 
 /* Sticky Action Buttons */

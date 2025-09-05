@@ -80,9 +80,9 @@ const ResidentialProjects = () => {
                   <span className="project-logo">{project.logo}</span>
                 </div>
               </div>
-              <div className="project-info">
+              <div className="residential-project-info">
                 <h3 className="project-name">{project.name}</h3>
-                <p className="project-location">{project.location}</p>
+                <p className="residential-project-location">{project.location}</p>
                 <p className="project-description">{project.description}</p>
                 <div className="view-more-luxury">
                   <span>View More</span>
