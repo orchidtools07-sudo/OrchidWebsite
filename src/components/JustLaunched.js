@@ -55,17 +55,6 @@ const JustLaunched = ({ onBookNowClick }) => {
     }, 500);
   }, [isTransitioning, projectImages.length]);
 
-  const prevSlide = useCallback(() => {
-    if (isTransitioning) return;
-    
-    setIsTransitioning(true);
-    setCurrentIndex(prev => prev === 0 ? projectImages.length - 1 : prev - 1);
-    
-    setTimeout(() => {
-      setIsTransitioning(false);
-    }, 500);
-  }, [isTransitioning, projectImages.length]);
-
   // Auto-slide functionality
   useEffect(() => {
     const interval = setInterval(() => {
