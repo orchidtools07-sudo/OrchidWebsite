@@ -35,14 +35,14 @@ const Footer = () => {
           </div>
           
           <div className="footer-logo">
-            <img src={LogoWhite}></img>
+            <img src={LogoWhite} alt="Orchid Infrastructure Developers Logo"></img>
           </div>
           
           <div className="footer-social">
-            <a href="#" className="social-icon facebook"></a>
-            <a href="#" className="social-icon twitter"></a>
-            <a href="#" className="social-icon instagram"></a>
-            <a href="#" className="social-icon linkedin"></a>
+            <a href="https://facebook.com" className="social-icon facebook" aria-label="Facebook"></a>
+            <a href="https://twitter.com" className="social-icon twitter" aria-label="Twitter"></a>
+            <a href="https://instagram.com" className="social-icon instagram" aria-label="Instagram"></a>
+            <a href="https://linkedin.com" className="social-icon linkedin" aria-label="LinkedIn"></a>
           </div>
         </div>
       </footer>

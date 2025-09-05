@@ -1,7 +1,6 @@
 import React from 'react';
 import OrchidCenter from '../images/Commercial/orchid-centre.jpg';
 import OrchidBusinessPark from '../images/Commercial/orchid-businesspark.jpg';
-import Hero2Image from '../images/Hero-2.jpg';
 import GlobalArcade from '../images/Commercial/Global-Arcade.jpg';
 import GlobalBusinessPark from '../images/Commercial/global-businespark.jpg';
 import ShoppingArcade from '../images/Commercial/shopping-arcade.jpg';

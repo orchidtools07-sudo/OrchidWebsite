@@ -10,6 +10,37 @@ const StatsSection = () => {
   const [hasAnimated, setHasAnimated] = useState(false);
   const statsRef = useRef();
 
+  const animateCounters = () => {
+    // Animate counters
+    const targetValues = { families: 1000, projects: 50, experience: 15, rating: 4.9 };
+    const duration = 2000; // 2 seconds
+    const steps = 60;
+    const stepDuration = duration / steps;
+    
+    let currentStep = 0;
+    const timer = setInterval(() => {
+      currentStep++;
+      const progress = currentStep / steps;
+      
+      setCounters({
+        families: Math.floor(targetValues.families * progress),
+        projects: Math.floor(targetValues.projects * progress),
+        experience: Math.floor(targetValues.experience * progress),
+        rating: (targetValues.rating * progress).toFixed(1)
+      });
+      
+      if (currentStep >= steps) {
+        clearInterval(timer);
+        setCounters({
+          families: targetValues.families,
+          projects: targetValues.projects,
+          experience: targetValues.experience,
+          rating: targetValues.rating
+        });
+      }
+    }, stepDuration);
+  };
+
   // Counter animation effect
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -17,48 +48,21 @@ const StatsSection = () => {
         entries.forEach((entry) => {
           if (entry.isIntersecting && !hasAnimated) {
             setHasAnimated(true);
-            
-            // Animate counters
-            const targetValues = { families: 1000, projects: 50, experience: 15, rating: 4.9 };
-            const duration = 2000; // 2 seconds
-            const steps = 60;
-            const stepDuration = duration / steps;
-            
-            let currentStep = 0;
-            const timer = setInterval(() => {
-              currentStep++;
-              const progress = currentStep / steps;
-              
-              setCounters({
-                families: Math.floor(targetValues.families * progress),
-                projects: Math.floor(targetValues.projects * progress),
-                experience: Math.floor(targetValues.experience * progress),
-                rating: (targetValues.rating * progress).toFixed(1)
-              });
-              
-              if (currentStep >= steps) {
-                clearInterval(timer);
-                setCounters({
-                  families: targetValues.families,
-                  projects: targetValues.projects,
-                  experience: targetValues.experience,
-                  rating: targetValues.rating
-                });
-              }
-            }, stepDuration);
+            animateCounters();
           }
         });
       },
       { threshold: 0.5 }
     );
 
-    if (statsRef.current) {
-      observer.observe(statsRef.current);
+    const currentStatsRef = statsRef.current;
+    if (currentStatsRef) {
+      observer.observe(currentStatsRef);
     }
 
     return () => {
-      if (statsRef.current) {
-        observer.unobserve(statsRef.current);
+      if (currentStatsRef) {
+        observer.unobserve(currentStatsRef);
       }
     };
   }, [hasAnimated]);

@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import OrchidIVYImage from '../images/Hero-1.jpg';
 import ivyslide1 from '../images/orchidivy/ivy-1.jpg';
 import ivyslide2 from '../images/orchidivy/ivy-2.jpg';
 import ivyslide3 from '../images/orchidivy/ivy-3.jpg';
@@ -45,15 +44,6 @@ const JustLaunched = ({ onBookNowClick }) => {
     }
   ];
 
-  // Auto-slide functionality
-  useEffect(() => {
-    const autoSlide = setInterval(() => {
-      nextSlide();
-    }, 4000);
-
-    return () => clearInterval(autoSlide);
-  }, [currentIndex]);
-
   const nextSlide = () => {
     if (isTransitioning) return;
     
@@ -75,6 +65,15 @@ const JustLaunched = ({ onBookNowClick }) => {
       setIsTransitioning(false);
     }, 500);
   };
+
+  // Auto-slide functionality
+  useEffect(() => {
+    const interval = setInterval(() => {
+      nextSlide();
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [nextSlide]);
 
   const goToSlide = (index) => {
     if (isTransitioning || index === currentIndex) return;

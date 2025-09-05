@@ -1,12 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './Residential.css';
-import OrchidIVYImage from '../images/Residential/orchid-ivy.jpg';
-import OrchidMayfield from '../images/Residential/orchid-mayfeild.jpg';
-import OrchidMetroPols from '../images/Residential/orchid-metropols.jpg';
-import OrchidPetals from '../images/Residential/orchid-petals.jpg';
-import OrchidWestgreen from '../images/Residential/orchid-westgreen.jpg';
-import OrchidIsland from '../images/Residential/orchid-island.avif';
 const Residential = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [slidesToShow, setSlidesToShow] = useState(3);
@@ -27,7 +21,7 @@ const Residential = () => {
       location: 'Sector 51, Gurugram',
       description: 'Orchid Island is one of the largest low-rise residential complexes in Gurugram and is located in Sector 51. Over 900 families are already enjoying the benefits and beauty of their homes here. With 24-hour power back up, water supply, and security, residents are completely at ease.',
       features: ['Ready to Move', '2/3/4 BHK', 'G+2 Level Flats', 'Starting @ 80 Lacs', '24-hour Power Backup', '24-hour Water Supply', '24-hour Security'],
-      image: 'orchid-mayfeild',
+      image: 'orchid-island',
       status: 'Ready to Move'
     },
     {
