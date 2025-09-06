@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import './AdminPanel.css';
 import LogoWhite from '../images/Logowhite.png';
 import LeadAPI from '../services/api';

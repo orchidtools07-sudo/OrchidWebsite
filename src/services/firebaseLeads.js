@@ -103,4 +103,5 @@ class FirebaseLeadService {
   }
 }
 
-export default new FirebaseLeadService();
+const firebaseLeadService = new FirebaseLeadService();
+export default firebaseLeadService;

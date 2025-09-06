@@ -113,4 +113,5 @@ class LeadAPI {
   }
 }
 
-export default new LeadAPI();
+const leadAPIInstance = new LeadAPI();
+export default leadAPIInstance;
