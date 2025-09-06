@@ -1,3 +1,5 @@
+// For production deployment without backend, use localStorage only
+const USE_API = process.env.NODE_ENV === 'development';
 const API_BASE_URL = process.env.NODE_ENV === 'production' 
   ? 'https://your-backend-url.com/api' 
   : 'http://localhost:3001/api';
@@ -5,13 +7,16 @@ const API_BASE_URL = process.env.NODE_ENV === 'production'
 class LeadAPI {
   constructor() {
     this.isOnline = navigator.onLine;
+    this.useAPI = USE_API;
     this.setupOnlineListener();
   }
 
   setupOnlineListener() {
     window.addEventListener('online', () => {
       this.isOnline = true;
-      this.syncOfflineLeads();
+      if (this.useAPI) {
+        this.syncOfflineLeads();
+      }
     });
     
     window.addEventListener('offline', () => {
@@ -41,6 +46,11 @@ class LeadAPI {
   }
 
   async getLeads() {
+    // In production without backend, use localStorage only
+    if (!this.useAPI) {
+      return this.getLocalLeads();
+    }
+
     try {
       if (!this.isOnline) {
         return this.getLocalLeads();
@@ -60,6 +70,11 @@ class LeadAPI {
   }
 
   async submitLead(leadData) {
+    // In production without backend, use localStorage only
+    if (!this.useAPI) {
+      return this.saveLeadDirectly(leadData);
+    }
+
     try {
       if (!this.isOnline) {
         return this.saveLeadOffline(leadData);
@@ -85,6 +100,11 @@ class LeadAPI {
   }
 
   async deleteLead(leadId) {
+    // In production without backend, use localStorage only
+    if (!this.useAPI) {
+      return this.deleteLeadLocal(leadId);
+    }
+
     try {
       if (!this.isOnline) {
         return this.deleteLeadLocal(leadId);
@@ -117,6 +137,27 @@ class LeadAPI {
     }
   }
 
+  saveLeadDirectly(leadData) {
+    const newLead = {
+      id: Date.now().toString(),
+      ...leadData,
+      date: new Date().toISOString(),
+    };
+
+    const localLeads = this.getLocalLeads();
+    localLeads.push(newLead);
+    localStorage.setItem('websiteLeads', JSON.stringify(localLeads));
+
+    // Trigger storage event for cross-tab communication
+    window.dispatchEvent(new StorageEvent('storage', {
+      key: 'websiteLeads',
+      newValue: JSON.stringify(localLeads),
+      oldValue: JSON.stringify(localLeads.slice(0, -1))
+    }));
+
+    return newLead;
+  }
+
   saveLeadOffline(leadData) {
     const newLead = {
       id: Date.now().toString(),
@@ -129,10 +170,12 @@ class LeadAPI {
     localLeads.push(newLead);
     localStorage.setItem('websiteLeads', JSON.stringify(localLeads));
 
-    // Store for later sync
-    const offlineLeads = JSON.parse(localStorage.getItem('offlineLeads') || '[]');
-    offlineLeads.push(newLead);
-    localStorage.setItem('offlineLeads', JSON.stringify(offlineLeads));
+    // Store for later sync only if using API
+    if (this.useAPI) {
+      const offlineLeads = JSON.parse(localStorage.getItem('offlineLeads') || '[]');
+      offlineLeads.push(newLead);
+      localStorage.setItem('offlineLeads', JSON.stringify(offlineLeads));
+    }
 
     return newLead;
   }
@@ -145,6 +188,9 @@ class LeadAPI {
   }
 
   async syncOfflineLeads() {
+    // Only sync if using API
+    if (!this.useAPI) return;
+
     try {
       const offlineLeads = JSON.parse(localStorage.getItem('offlineLeads') || '[]');
       if (offlineLeads.length === 0) return;
@@ -175,6 +221,8 @@ class LeadAPI {
   }
 
   async checkServerHealth() {
+    if (!this.useAPI) return false;
+    
     try {
       const response = await this.makeRequest('/health');
       return response.success;
