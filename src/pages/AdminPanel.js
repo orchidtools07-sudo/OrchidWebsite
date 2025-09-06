@@ -191,8 +191,14 @@ const AdminPanel = () => {
     const leadsByMonth = new Array(12).fill(0);
     
     leads.forEach(lead => {
-      const month = new Date(lead.date).getMonth();
-      leadsByMonth[month]++;
+      const timestamp = lead.timestamp || lead.date;
+      if (timestamp) {
+        const date = new Date(timestamp);
+        if (!isNaN(date.getTime())) {
+          const month = date.getMonth();
+          leadsByMonth[month]++;
+        }
+      }
     });
     
     return months.map((month, index) => ({
@@ -211,8 +217,44 @@ const AdminPanel = () => {
     setLeads(updatedLeads);
   };
 
+  const markAllAsRead = () => {
+    const updatedLeads = leads.map(lead => ({ ...lead, status: 'read' }));
+    setLeads(updatedLeads);
+  };
+
   const renderDashboard = () => (
     <div className="admin-main-content">
+      {/* Quick Actions Section */}
+      <div className="quick-actions-section">
+        <h3>Quick Actions</h3>
+        <div className="quick-actions-grid">
+          <button 
+            className="quick-action-btn export-btn"
+            onClick={exportLeads}
+          >
+            📊 Export Leads
+          </button>
+          <button 
+            className="quick-action-btn mark-all-read-btn"
+            onClick={markAllAsRead}
+          >
+            ✅ Mark All Read
+          </button>
+          <button 
+            className="quick-action-btn view-leads-btn"
+            onClick={() => setActiveSection('leads')}
+          >
+            👥 View All Leads
+          </button>
+          <button 
+            className="quick-action-btn refresh-btn"
+            onClick={() => loadLeads()}
+          >
+            🔄 Refresh Data
+          </button>
+        </div>
+      </div>
+
       <div className="admin-stats-grid">
         <div className="admin-stat-card">
           <div className="stat-icon">📊</div>
@@ -259,7 +301,7 @@ const AdminPanel = () => {
               <div key={index} className="chart-bar">
                 <div 
                   className="bar-fill" 
-                  style={{ height: `${Math.max(data.count * 20, 5)}px` }}
+                  style={{ height: `${data.count > 0 ? (data.count / Math.max(...getLeadsByMonth().map(d => d.count))) * 100 : 0}%` }}
                 ></div>
                 <span className="bar-label">{data.month}</span>
                 <span className="bar-value">{data.count}</span>
@@ -288,6 +330,91 @@ const AdminPanel = () => {
                 ></div>
               </div>
               <span>Contact Form ({leads.filter(lead => lead.leadType === 'Contact Form').length})</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Recent Activity Feed */}
+        <div className="admin-chart-card recent-activity">
+          <h3>Recent Activity</h3>
+          <div className="activity-feed">
+            {leads.slice(0, 5).map((lead, index) => (
+              <div key={lead.id || index} className="activity-item">
+                <div className="activity-icon">
+                  {lead.leadType === 'Schedule Call Popup' ? '📞' : '📧'}
+                </div>
+                <div className="activity-content">
+                  <p className="activity-title">{lead.name} submitted a {lead.leadType}</p>
+                  <p className="activity-time">
+                    {(() => {
+                      const timestamp = lead.timestamp || lead.date;
+                      if (!timestamp) return 'Unknown time';
+                      
+                      const date = new Date(timestamp);
+                      if (isNaN(date.getTime())) {
+                        // If timestamp is invalid, try to parse it differently or show fallback
+                        return 'Invalid date format';
+                      }
+                      
+                      return date.toLocaleString();
+                    })()}
+                  </p>
+                </div>
+                <div className={`activity-status ${lead.status === 'read' ? 'read' : 'unread'}`}>
+                  {lead.status === 'read' ? '✅' : '📧'}
+                </div>
+              </div>
+            ))}
+            {leads.length === 0 && (
+              <div className="no-activity">
+                <p>No recent activity</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Lead Insights */}
+        <div className="admin-chart-card lead-insights">
+          <h3>Lead Insights</h3>
+          <div className="insights-grid">
+            <div className="insight-item">
+              <div className="insight-value">
+                {leads.length > 0 ? Math.round((leads.filter(lead => lead.status === 'read').length / leads.length) * 100) : 0}%
+              </div>
+              <div className="insight-label">Response Rate</div>
+            </div>
+            <div className="insight-item">
+              <div className="insight-value">
+                {leads.filter(lead => {
+                  const timestamp = lead.timestamp || lead.date;
+                  if (!timestamp) return false;
+                  const date = new Date(timestamp);
+                  const today = new Date();
+                  const yesterday = new Date(today);
+                  yesterday.setDate(yesterday.getDate() - 1);
+                  return date.toDateString() === yesterday.toDateString();
+                }).length}
+              </div>
+              <div className="insight-label">Yesterday's Leads</div>
+            </div>
+            <div className="insight-item">
+              <div className="insight-value">
+                {leads.filter(lead => {
+                  const timestamp = lead.timestamp || lead.date;
+                  if (!timestamp) return false;
+                  const date = new Date(timestamp);
+                  const weekAgo = new Date();
+                  weekAgo.setDate(weekAgo.getDate() - 7);
+                  return date >= weekAgo;
+                }).length}
+              </div>
+              <div className="insight-label">This Week</div>
+            </div>
+            <div className="insight-item">
+              <div className="insight-value">
+                {leads.filter(lead => lead.phone && lead.phone.length > 0).length}
+              </div>
+              <div className="insight-label">With Phone</div>
             </div>
           </div>
         </div>
@@ -465,124 +592,65 @@ const AdminPanel = () => {
 
   return (
     <div className="admin-container">
-      {/* Sidebar */}
-      <div className="admin-sidebar">
-        <div className="admin-logo">
-        <img src={LogoWhite} alt="Orchid Infrastructure Developers Logo"></img>
-        </div>
-        
-        <nav className="admin-nav">
-          <button 
-            className={`admin-nav-item ${activeSection === 'dashboard' ? 'active' : ''}`}
-            onClick={() => setActiveSection('dashboard')}
-          >
-            <span className="admin-nav-icon">📊</span>
-            Dashboard
-          </button>
+      {/* Top Navigation Bar */}
+      <div className="admin-topbar">
+        <div className="admin-topbar-content">
+          <div className="admin-logo">
+            <img src={LogoWhite} alt="Orchid Infrastructure Developers Logo" />
+          </div>
           
-          {canAccessLeads() && (
+          <nav className="admin-tabs">
             <button 
-              className={`admin-nav-item ${activeSection === 'leads' ? 'active' : ''}`}
-              onClick={() => setActiveSection('leads')}
+              className={`admin-tab ${activeSection === 'dashboard' ? 'active' : ''}`}
+              onClick={() => setActiveSection('dashboard')}
             >
-              <span className="admin-nav-icon">👥</span>
-              Leads
+              <span className="admin-tab-icon">📊</span>
+              Dashboard
             </button>
-          )}
+            
+            {canAccessLeads() && (
+              <button 
+                className={`admin-tab ${activeSection === 'leads' ? 'active' : ''}`}
+                onClick={() => setActiveSection('leads')}
+              >
+                <span className="admin-tab-icon">👥</span>
+                Leads
+              </button>
+            )}
+          </nav>
           
-          <button 
-            className={`admin-nav-item ${activeSection === 'media' ? 'active' : ''}`}
-            onClick={() => setActiveSection('media')}
-          >
-            <span className="admin-nav-icon">🎬</span>
-            Hero Media
-          </button>
-          
-          {canAccessLeads() && (
+          <div className="admin-topbar-actions">
+            <div className="admin-notifications">
+              <button className="notification-btn" onClick={() => setActiveSection('leads')}>
+                <span className="notification-icon">🔔</span>
+                {leads.filter(lead => (lead.status || 'unread') === 'unread').length > 0 && (
+                  <span className="notification-badge">
+                    {leads.filter(lead => (lead.status || 'unread') === 'unread').length}
+                  </span>
+                )}
+              </button>
+            </div>
+            <div className="admin-status">
+              {isOnline ? (
+                <span className="status-online">🟢 Online</span>
+              ) : (
+                <span className="status-offline">🔴 Offline</span>
+              )}
+            </div>
             <button 
-              className={`admin-nav-item ${activeSection === 'content' ? 'active' : ''}`}
-              onClick={() => setActiveSection('content')}
+              className="admin-logout-btn"
+              onClick={() => setIsLoggedIn(false)}
             >
-              <span className="admin-nav-icon">📝</span>
-              Content
+              Logout
             </button>
-          )}
-          
-          {canAccessLeads() && (
-            <button 
-              className={`admin-nav-item ${activeSection === 'developer' ? 'active' : ''}`}
-              onClick={() => setActiveSection('developer')}
-            >
-              <span className="admin-nav-icon">⚙️</span>
-              Developer
-            </button>
-          )}
-        </nav>
-        
-        <div className="admin-sidebar-footer">
-          <button onClick={handleLogout} className="admin-logout-btn">
-            <span className="nav-icon">🚪</span>
-            Logout
-          </button>
+          </div>
         </div>
       </div>
 
-      {/* Main Content */}
+      {/* Main Content Area */}
       <div className="admin-main">
-        <div className="admin-topbar">
-          <h1>
-            {activeSection === 'dashboard' ? '📊 Dashboard' : '👥 Lead Management'}
-          </h1>
-          <div className="admin-user-info">
-            <span>Welcome, {loginData.username}</span>
-          </div>
-        </div>
-
-        {activeSection === 'dashboard' ? renderDashboard() : renderLeads()}
-
-        {deletePopup.show && (
-          <div className="admin-delete-overlay">
-            <div className="admin-delete-popup">
-              <div className="delete-popup-header">
-                <h3>🔐 Secure Delete Confirmation</h3>
-                <p>This action requires administrative authorization</p>
-              </div>
-              
-              <div className="delete-popup-content">
-                <div className="delete-warning">
-                  <span className="warning-icon">⚠️</span>
-                  <p>You are about to permanently delete this lead. This action cannot be undone.</p>
-                </div>
-                
-                <div className="password-input-container">
-                  <label>Enter Authorization Password</label>
-                  <input 
-                    type="password" 
-                    value={deletePopup.password} 
-                    onChange={(e) => setDeletePopup({...deletePopup, password: e.target.value})}
-                    placeholder="Enter password..."
-                    className="delete-password-input"
-                    onKeyPress={(e) => e.key === 'Enter' && confirmDeleteLead()}
-                  />
-                  {deleteError && <div className="delete-error-message">{deleteError}</div>}
-                </div>
-              </div>
-              
-              <div className="delete-popup-actions">
-                <button onClick={confirmDeleteLead} className="delete-confirm-btn">
-                  <span>🗑️</span> Confirm Delete
-                </button>
-                <button onClick={cancelDeleteLead} className="delete-cancel-btn">
-                  <span>✕</span> Cancel
-                </button>
-              </div>
-              
-              <div className="delete-popup-footer">
-                <p>For password assistance, contact <strong>Vikrant Shekhawat</strong> at <a href="mailto:developer@oidpl.com">developer@oidpl.com</a></p>
-              </div>
-            </div>
-          </div>
-        )}
+        {activeSection === 'dashboard' && renderDashboard()}
+        {activeSection === 'leads' && renderLeads()}
       </div>
     </div>
   );
