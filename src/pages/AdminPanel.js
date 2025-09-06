@@ -335,11 +335,6 @@ const AdminPanel = () => {
             
             {loginError && <div className="admin-error">{loginError}</div>}
           </form>
-
-          <div className="admin-credentials">
-            <h4>Demo Credentials:</h4>
-            <p><strong>Admin:</strong> admin / orchid2024</p>
-          </div>
         </div>
       </div>
     );
