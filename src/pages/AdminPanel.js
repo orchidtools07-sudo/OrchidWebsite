@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './AdminPanel.css';
 import LogoWhite from '../images/Logowhite.png';
 import LeadAPI from '../services/api';
+import FirebaseLeadService from '../services/firebaseLeads';
 
 const AdminPanel = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -40,13 +41,6 @@ const AdminPanel = () => {
   useEffect(() => {
     if (isLoggedIn) {
       loadLeads();
-      
-      // Set up automatic polling every 10 seconds for real-time updates
-      const pollInterval = setInterval(() => {
-        loadLeads();
-      }, 10000);
-      
-      return () => clearInterval(pollInterval);
     }
   }, [isLoggedIn]);
 
@@ -63,21 +57,42 @@ const AdminPanel = () => {
   }, [leads.length, previousLeadCount]);
 
   const loadLeads = async () => {
-    console.log('🔄 AdminPanel: Loading leads...');
+    console.log('🔄 AdminPanel: Loading leads from Firebase...');
     try {
-      const fetchedLeads = await LeadAPI.getLeads();
-      console.log('📊 AdminPanel: Received leads:', fetchedLeads.length, 'leads');
-      console.log('📋 AdminPanel: Lead data:', fetchedLeads);
+      const fetchedLeads = await FirebaseLeadService.getLeads();
+      console.log('📊 AdminPanel: Received Firebase leads:', fetchedLeads.length, 'leads');
       setLeads(fetchedLeads);
-      console.log('✅ AdminPanel: Leads state updated successfully');
+      console.log('✅ AdminPanel: Firebase leads loaded successfully');
     } catch (error) {
-      console.error('❌ AdminPanel: Error loading leads:', error);
-      // Fallback to localStorage if API fails
+      console.error('❌ AdminPanel: Error loading Firebase leads:', error);
+      // Fallback to localStorage if Firebase fails
       const localLeads = JSON.parse(localStorage.getItem('websiteLeads') || '[]');
       console.log('💾 AdminPanel: Fallback to localStorage:', localLeads.length, 'leads');
       setLeads(localLeads);
     }
   };
+
+  // Set up real-time listener for cross-device sync
+  useEffect(() => {
+    if (isLoggedIn) {
+      console.log('👂 Setting up real-time Firebase listener...');
+      const unsubscribe = FirebaseLeadService.onLeadsChange((updatedLeads) => {
+        console.log('🔄 Real-time update received:', updatedLeads.length, 'leads');
+        setLeads(updatedLeads);
+        
+        // Play notification sound for new leads
+        if (updatedLeads.length > leads.length) {
+          playNotificationSound();
+        }
+      });
+
+      // Cleanup listener on unmount
+      return () => {
+        console.log('🔌 Cleaning up Firebase listener');
+        unsubscribe();
+      };
+    }
+  }, [isLoggedIn, leads.length]);
 
   const handleLogin = (e) => {
     e.preventDefault();
