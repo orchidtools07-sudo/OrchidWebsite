@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import emailjs from '@emailjs/browser';
 import './Contact.css';
 import ScheduleCallPopup from '../components/ScheduleCallPopup';
-import LeadAPI from '../services/api';
+import FirebaseLeadService from '../services/firebaseLeads';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -49,8 +49,29 @@ const Contact = () => {
     setIsSubmitting(true);
     setSubmitStatus('');
     
+    console.log('📧 Contact Form: Submitting form data:', {
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      subject: formData.subject
+    });
+    
     try {
-      // Send email via EmailJS
+      // Save lead to Firebase first
+      const leadData = {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        subject: formData.subject,
+        message: formData.message
+      };
+      
+      console.log('💾 Saving lead to Firebase...');
+      await FirebaseLeadService.submitLead(leadData);
+      console.log('✅ Lead saved to Firebase successfully');
+      
+      // Send email notification
+      console.log('📧 Sending email notification...');
       const response = await emailjs.send(
         'service_jsimrnn',
         'template_7tuttjj',
@@ -65,19 +86,46 @@ const Contact = () => {
       );
 
       if (response.status === 200) {
-        console.log('Contact form email sent successfully!');
-        
-        // Save lead via API (with localStorage fallback)
-        const leadData = {
+        console.log('✅ Contact form email sent successfully!');
+      } else {
+        console.error('❌ EmailJS returned non-200 status:', response.status);
+      }
+      
+      // Always show success since Firebase saved the lead
+      setIsSubmitting(false);
+      setSubmitStatus('success');
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        subject: '',
+        message: ''
+      });
+      
+      // Clear success message after 5 seconds
+      setTimeout(() => {
+        setSubmitStatus('');
+      }, 5000);
+      
+    } catch (error) {
+      console.error('❌ Contact form error:', error);
+      
+      // If Firebase fails, try to save locally
+      try {
+        const localLeads = JSON.parse(localStorage.getItem('websiteLeads') || '[]');
+        const newLead = {
+          id: Date.now().toString(),
           name: formData.name,
           email: formData.email,
           phone: formData.phone,
           subject: formData.subject,
           message: formData.message,
-          source: 'Contact Form'
+          timestamp: new Date().toISOString(),
+          status: 'offline'
         };
-        
-        await LeadAPI.submitLead(leadData);
+        localLeads.push(newLead);
+        localStorage.setItem('websiteLeads', JSON.stringify(localLeads));
+        console.log('💾 Lead saved to localStorage as fallback');
         
         setIsSubmitting(false);
         setSubmitStatus('success');
@@ -89,20 +137,19 @@ const Contact = () => {
           message: ''
         });
         
-        // Clear success message after 5 seconds
+        setTimeout(() => {
+          setSubmitStatus('');
+        }, 5000);
+      } catch (localError) {
+        console.error('❌ Failed to save locally:', localError);
+        setIsSubmitting(false);
+        setSubmitStatus('error');
+        
+        // Clear error message after 5 seconds
         setTimeout(() => {
           setSubmitStatus('');
         }, 5000);
       }
-    } catch (error) {
-      console.error('Contact form email error:', error);
-      setIsSubmitting(false);
-      setSubmitStatus('error');
-      
-      // Clear error message after 5 seconds
-      setTimeout(() => {
-        setSubmitStatus('');
-      }, 5000);
     }
   };
 
