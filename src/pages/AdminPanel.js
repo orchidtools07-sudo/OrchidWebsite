@@ -10,11 +10,41 @@ const AdminPanel = () => {
   const [activeSection, setActiveSection] = useState('dashboard');
   const [userRole, setUserRole] = useState('');
   const [previousLeadCount, setPreviousLeadCount] = useState(null);
+  const [deletePopup, setDeletePopup] = useState({ show: false, leadId: null, password: '' });
+  const [deleteError, setDeleteError] = useState('');
+
+  // Delete confirmation password
+  const DELETE_PASSWORD = 'Welcome@2025';
 
   // User credentials - only admin
   const users = {
     'admin': { password: 'orchid2024', role: 'admin' }
   };
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      loadLeads();
+      
+      // Set up automatic polling every 30 seconds
+      const pollInterval = setInterval(() => {
+        loadLeads();
+      }, 30000);
+      
+      return () => clearInterval(pollInterval);
+    }
+  }, [isLoggedIn]);
+
+  useEffect(() => {
+    const currentLeadCount = leads.length;
+    
+    if (previousLeadCount !== null && currentLeadCount > previousLeadCount) {
+      // New lead added, show notification or update UI
+      console.log('New lead received!');
+      // You could add a toast notification here
+    }
+    
+    setPreviousLeadCount(currentLeadCount);
+  }, [leads.length, previousLeadCount]);
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -33,36 +63,11 @@ const AdminPanel = () => {
       
       window.addEventListener('storage', handleStorageChange);
       
-      // Set up polling for new leads every 3 seconds (fallback for same-tab updates)
-      const leadPollingInterval = setInterval(() => {
-        const currentLeads = JSON.parse(localStorage.getItem('websiteLeads') || '[]');
-        if (currentLeads.length !== leads.length) {
-          // Play notification sound only for new leads (increased count)
-          if (currentLeads.length > leads.length) {
-            playNotificationSound();
-          }
-          // Update leads state to trigger re-render
-          setLeads(currentLeads);
-        }
-      }, 3000);
-      
       return () => {
         window.removeEventListener('storage', handleStorageChange);
-        clearInterval(leadPollingInterval);
       };
     }
   }, [isLoggedIn, leads.length]);
-
-  useEffect(() => {
-    const currentLeadCount = leads.length;
-    
-    if (previousLeadCount !== null && currentLeadCount > previousLeadCount) {
-      // New lead added, show notification or update UI
-      console.log('New lead received!');
-    }
-    
-    setPreviousLeadCount(currentLeadCount);
-  }, [leads.length, previousLeadCount]);
 
   const loadLeads = () => {
     const storedLeads = JSON.parse(localStorage.getItem('websiteLeads') || '[]');
@@ -89,9 +94,25 @@ const AdminPanel = () => {
   };
 
   const deleteLead = (index) => {
-    const updatedLeads = leads.filter((_, i) => i !== index);
-    setLeads(updatedLeads);
-    localStorage.setItem('websiteLeads', JSON.stringify(updatedLeads));
+    setDeletePopup({ show: true, leadId: index, password: '' });
+    setDeleteError('');
+  };
+
+  const confirmDeleteLead = () => {
+    if (deletePopup.password === DELETE_PASSWORD) {
+      const updatedLeads = leads.filter((_, i) => i !== deletePopup.leadId);
+      setLeads(updatedLeads);
+      localStorage.setItem('websiteLeads', JSON.stringify(updatedLeads));
+      setDeletePopup({ show: false, leadId: null, password: '' });
+      setDeleteError('');
+    } else {
+      setDeleteError('Invalid password. Please try again.');
+    }
+  };
+
+  const cancelDeleteLead = () => {
+    setDeletePopup({ show: false, leadId: null, password: '' });
+    setDeleteError('');
   };
 
   const exportLeads = () => {
@@ -230,6 +251,9 @@ const AdminPanel = () => {
     <div className="admin-main-content">
       <div className="admin-leads-header">
         <h2>All Leads ({leads.length})</h2>
+        <button onClick={loadLeads} className="admin-refresh-btn">
+          🔄 Refresh
+        </button>
         <button onClick={exportLeads} className="admin-export-btn">
           📥 Export CSV
         </button>
@@ -416,6 +440,50 @@ const AdminPanel = () => {
         </div>
 
         {activeSection === 'dashboard' ? renderDashboard() : renderLeads()}
+
+        {deletePopup.show && (
+          <div className="admin-delete-overlay">
+            <div className="admin-delete-popup">
+              <div className="delete-popup-header">
+                <h3>🔐 Secure Delete Confirmation</h3>
+                <p>This action requires administrative authorization</p>
+              </div>
+              
+              <div className="delete-popup-content">
+                <div className="delete-warning">
+                  <span className="warning-icon">⚠️</span>
+                  <p>You are about to permanently delete this lead. This action cannot be undone.</p>
+                </div>
+                
+                <div className="password-input-container">
+                  <label>Enter Authorization Password</label>
+                  <input 
+                    type="password" 
+                    value={deletePopup.password} 
+                    onChange={(e) => setDeletePopup({...deletePopup, password: e.target.value})}
+                    placeholder="Enter password..."
+                    className="delete-password-input"
+                    onKeyPress={(e) => e.key === 'Enter' && confirmDeleteLead()}
+                  />
+                  {deleteError && <div className="delete-error-message">{deleteError}</div>}
+                </div>
+              </div>
+              
+              <div className="delete-popup-actions">
+                <button onClick={confirmDeleteLead} className="delete-confirm-btn">
+                  <span>🗑️</span> Confirm Delete
+                </button>
+                <button onClick={cancelDeleteLead} className="delete-cancel-btn">
+                  <span>✕</span> Cancel
+                </button>
+              </div>
+              
+              <div className="delete-popup-footer">
+                <p>For password assistance, contact <strong>Vikrant Shekhawat</strong> at <a href="mailto:developer@oidpl.com">developer@oidpl.com</a></p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
