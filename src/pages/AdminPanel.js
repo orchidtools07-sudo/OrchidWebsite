@@ -9,7 +9,7 @@ const AdminPanel = () => {
   const [leads, setLeads] = useState([]);
   const [activeSection, setActiveSection] = useState('dashboard');
   const [userRole, setUserRole] = useState('');
-  const [previousLeadCount, setPreviousLeadCount] = useState(0);
+  const [previousLeadCount, setPreviousLeadCount] = useState(null);
 
   // User credentials - only admin
   const users = {
@@ -52,6 +52,17 @@ const AdminPanel = () => {
       };
     }
   }, [isLoggedIn, leads.length]);
+
+  useEffect(() => {
+    const currentLeadCount = leads.length;
+    
+    if (previousLeadCount !== null && currentLeadCount > previousLeadCount) {
+      // New lead added, show notification or update UI
+      console.log('New lead received!');
+    }
+    
+    setPreviousLeadCount(currentLeadCount);
+  }, [leads.length, previousLeadCount]);
 
   const loadLeads = () => {
     const storedLeads = JSON.parse(localStorage.getItem('websiteLeads') || '[]');
@@ -116,23 +127,6 @@ const AdminPanel = () => {
   const canDeleteLeads = () => userRole === 'admin';
   const canAccessLeads = () => ['admin'].includes(userRole);
 
-  useEffect(() => {
-    if (leads.length > previousLeadCount) {
-      playNotificationSound();
-    }
-    setPreviousLeadCount(leads.length);
-  }, [leads]);
-
-  // Calculate stats
-  const totalLeads = leads.length;
-  const todayLeads = leads.filter(lead => {
-    const leadDate = new Date(lead.date);
-    const today = new Date();
-    return leadDate.toDateString() === today.toDateString();
-  }).length;
-  const scheduleCallLeads = leads.filter(lead => lead.source === 'Schedule Call Popup').length;
-  const contactFormLeads = leads.filter(lead => lead.source === 'Contact Form').length;
-
   const getLeadsByMonth = () => {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const leadsByMonth = new Array(12).fill(0);
@@ -155,7 +149,7 @@ const AdminPanel = () => {
           <div className="stat-icon">📊</div>
           <div className="stat-info">
             <h3>Total Leads</h3>
-            <p className="stat-number">{totalLeads}</p>
+            <p className="stat-number">{leads.length}</p>
           </div>
         </div>
         
@@ -163,7 +157,11 @@ const AdminPanel = () => {
           <div className="stat-icon">📅</div>
           <div className="stat-info">
             <h3>Today's Leads</h3>
-            <p className="stat-number">{todayLeads}</p>
+            <p className="stat-number">{leads.filter(lead => {
+              const leadDate = new Date(lead.date);
+              const today = new Date();
+              return leadDate.toDateString() === today.toDateString();
+            }).length}</p>
           </div>
         </div>
         
@@ -171,7 +169,7 @@ const AdminPanel = () => {
           <div className="stat-icon">📞</div>
           <div className="stat-info">
             <h3>Schedule Calls</h3>
-            <p className="stat-number">{scheduleCallLeads}</p>
+            <p className="stat-number">{leads.filter(lead => lead.source === 'Schedule Call Popup').length}</p>
           </div>
         </div>
         
@@ -179,7 +177,7 @@ const AdminPanel = () => {
           <div className="stat-icon">✉️</div>
           <div className="stat-info">
             <h3>Contact Forms</h3>
-            <p className="stat-number">{contactFormLeads}</p>
+            <p className="stat-number">{leads.filter(lead => lead.source === 'Contact Form').length}</p>
           </div>
         </div>
       </div>
@@ -208,19 +206,19 @@ const AdminPanel = () => {
               <div className="source-bar">
                 <div 
                   className="source-fill schedule-call" 
-                  style={{ width: `${totalLeads > 0 ? (scheduleCallLeads / totalLeads) * 100 : 0}%` }}
+                  style={{ width: `${leads.length > 0 ? (leads.filter(lead => lead.source === 'Schedule Call Popup').length / leads.length) * 100 : 0}%` }}
                 ></div>
               </div>
-              <span>Schedule Call ({scheduleCallLeads})</span>
+              <span>Schedule Call ({leads.filter(lead => lead.source === 'Schedule Call Popup').length})</span>
             </div>
             <div className="source-item">
               <div className="source-bar">
                 <div 
                   className="source-fill contact-form" 
-                  style={{ width: `${totalLeads > 0 ? (contactFormLeads / totalLeads) * 100 : 0}%` }}
+                  style={{ width: `${leads.length > 0 ? (leads.filter(lead => lead.source === 'Contact Form').length / leads.length) * 100 : 0}%` }}
                 ></div>
               </div>
-              <span>Contact Form ({contactFormLeads})</span>
+              <span>Contact Form ({leads.filter(lead => lead.source === 'Contact Form').length})</span>
             </div>
           </div>
         </div>
@@ -231,7 +229,7 @@ const AdminPanel = () => {
   const renderLeads = () => (
     <div className="admin-main-content">
       <div className="admin-leads-header">
-        <h2>All Leads ({totalLeads})</h2>
+        <h2>All Leads ({leads.length})</h2>
         <button onClick={exportLeads} className="admin-export-btn">
           📥 Export CSV
         </button>

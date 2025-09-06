@@ -15,7 +15,7 @@ const HeroSection = ({ onContactClick }) => {
     
     // Listen for video updates from admin panel
     const handleVideoUpdate = (event) => {
-      const { videoUrl, isVideo: mediaIsVideo, mediaType: type } = event.detail;
+      const { videoUrl, mediaType: type } = event.detail;
       setCurrentMediaUrl(videoUrl);
       setIsVideo(true);
       setMediaType(type || '');
@@ -23,7 +23,7 @@ const HeroSection = ({ onContactClick }) => {
 
     // Listen for image updates from admin panel
     const handleImageUpdate = (event) => {
-      const { imageUrl, isVideo: mediaIsVideo, mediaType: type } = event.detail;
+      const { imageUrl, mediaType: type } = event.detail;
       setCurrentMediaUrl(imageUrl);
       setIsVideo(false);
       setMediaType(type || '');
