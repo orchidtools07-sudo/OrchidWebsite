@@ -369,7 +369,20 @@ const AdminPanel = () => {
                           {lead.offline && <span className="offline-indicator">📴</span>}
                         </span>
                       </td>
-                      <td>{new Date(lead.timestamp || lead.date).toLocaleString()}</td>
+                      <td>
+                        {(() => {
+                          const timestamp = lead.timestamp || lead.date;
+                          if (!timestamp) return 'No date';
+                          
+                          const date = new Date(timestamp);
+                          if (isNaN(date.getTime())) {
+                            // If timestamp is invalid, try to parse it differently or show fallback
+                            return 'Invalid date format';
+                          }
+                          
+                          return date.toLocaleString();
+                        })()}
+                      </td>
                       <td>
                         {canDeleteLeads() && (
                           <button 

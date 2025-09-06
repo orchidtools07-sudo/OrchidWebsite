@@ -63,7 +63,8 @@ const ScheduleCallPopup = ({ isOpen, onClose }) => {
         email: '', // No email in schedule call popup
         phone: formData.phone,
         subject: 'Schedule Call Request',
-        message: 'Customer requested a callback through Schedule Call popup'
+        message: 'Customer requested a callback through Schedule Call popup',
+        source: 'Schedule Call Popup'
       };
       
       console.log('💾 Saving lead to Firebase...');
