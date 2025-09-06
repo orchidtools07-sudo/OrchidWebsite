@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import emailjs from '@emailjs/browser';
 import './ScheduleCallPopup.css';
-import LeadAPI from '../services/api';
+import FirebaseLeadService from '../services/firebaseLeads';
 
 // Initialize EmailJS
 emailjs.init('0JaufsfxPtIz0baYD'); // Replace with your actual public key from EmailJS dashboard
@@ -51,14 +51,27 @@ const ScheduleCallPopup = ({ isOpen, onClose }) => {
     setIsSubmitting(true);
     setError('');
     
-    console.log('Attempting to send email with data:', {
+    console.log('📞 Schedule Call: Submitting form data:', {
       name: formData.name,
-      phone: formData.phone,
-      serviceId: 'service_jsimrnn',
-      templateId: 'template_7tuttjj'
+      phone: formData.phone
     });
     
     try {
+      // Save lead to Firebase first
+      const leadData = {
+        name: formData.name,
+        email: '', // No email in schedule call popup
+        phone: formData.phone,
+        subject: 'Schedule Call Request',
+        message: 'Customer requested a callback through Schedule Call popup'
+      };
+      
+      console.log('💾 Saving lead to Firebase...');
+      await FirebaseLeadService.submitLead(leadData);
+      console.log('✅ Lead saved to Firebase successfully');
+      
+      // Send email notification
+      console.log('📧 Sending email notification...');
       const response = await emailjs.send(
         'service_jsimrnn',
         'template_7tuttjj',
@@ -67,25 +80,15 @@ const ScheduleCallPopup = ({ isOpen, onClose }) => {
           phone: formData.phone,
           current_date: new Date().toLocaleString(),
           to_email: 'orchidtools07@gmail.com',
-          from_name: 'Website Contact Form',
+          from_name: 'Website Schedule Call',
           reply_to: 'orchidtools07@gmail.com'
         }
       );
       
-      console.log('EmailJS Response:', response);
+      console.log('📧 EmailJS Response:', response);
       
       if (response.status === 200) {
-        console.log('Email sent successfully!');
-        
-        // Save lead via API (with localStorage fallback)
-        const leadData = {
-          name: formData.name,
-          phone: formData.phone,
-          source: 'Schedule Call Popup'
-        };
-        
-        await LeadAPI.submitLead(leadData);
-        
+        console.log('✅ Email sent successfully!');
         setIsSubmitting(false);
         setIsSuccess(true);
         
@@ -93,16 +96,42 @@ const ScheduleCallPopup = ({ isOpen, onClose }) => {
           onClose();
         }, 3000);
       } else {
-        console.error('EmailJS returned non-200 status:', response.status);
-        setError('Failed to send message. Please try again.');
+        console.error('❌ EmailJS returned non-200 status:', response.status);
+        setError('Failed to send notification email, but your request was saved.');
         setIsSubmitting(false);
       }
     } catch (error) {
-      console.error('Email Error Details:', error);
-      console.error('Error message:', error.message);
-      console.error('Error text:', error.text);
-      setError(`Failed to send message: ${error.text || error.message}`);
-      setIsSubmitting(false);
+      console.error('❌ Schedule Call Error:', error);
+      
+      // If Firebase fails, try to save locally
+      try {
+        const localLeads = JSON.parse(localStorage.getItem('websiteLeads') || '[]');
+        const newLead = {
+          id: Date.now().toString(),
+          name: formData.name,
+          email: '',
+          phone: formData.phone,
+          subject: 'Schedule Call Request',
+          message: 'Customer requested a callback through Schedule Call popup',
+          timestamp: new Date().toISOString(),
+          status: 'offline'
+        };
+        localLeads.push(newLead);
+        localStorage.setItem('websiteLeads', JSON.stringify(localLeads));
+        console.log('💾 Lead saved to localStorage as fallback');
+        
+        setError('Request saved locally. Our team will contact you soon.');
+        setIsSubmitting(false);
+        setIsSuccess(true);
+        
+        setTimeout(() => {
+          onClose();
+        }, 3000);
+      } catch (localError) {
+        console.error('❌ Failed to save locally:', localError);
+        setError('Failed to submit request. Please try again.');
+        setIsSubmitting(false);
+      }
     }
   };
 
