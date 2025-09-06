@@ -227,7 +227,7 @@ const AdminPanel = () => {
           <div className="stat-info">
             <h3>Today's Leads</h3>
             <p className="stat-number">{leads.filter(lead => {
-              const leadDate = new Date(lead.date);
+              const leadDate = new Date(lead.timestamp || lead.date);
               const today = new Date();
               return leadDate.toDateString() === today.toDateString();
             }).length}</p>
@@ -235,18 +235,18 @@ const AdminPanel = () => {
         </div>
         
         <div className="admin-stat-card">
-          <div className="stat-icon">📞</div>
+          <div className="stat-icon">�</div>
           <div className="stat-info">
-            <h3>Schedule Calls</h3>
-            <p className="stat-number">{leads.filter(lead => lead.source === 'Schedule Call Popup').length}</p>
+            <h3>Unread Leads</h3>
+            <p className="stat-number">{leads.filter(lead => (lead.status || 'unread') === 'unread').length}</p>
           </div>
         </div>
         
         <div className="admin-stat-card">
-          <div className="stat-icon">✉️</div>
+          <div className="stat-icon">✅</div>
           <div className="stat-info">
-            <h3>Contact Forms</h3>
-            <p className="stat-number">{leads.filter(lead => lead.source === 'Contact Form').length}</p>
+            <h3>Read Leads</h3>
+            <p className="stat-number">{leads.filter(lead => lead.status === 'read').length}</p>
           </div>
         </div>
       </div>
@@ -275,19 +275,19 @@ const AdminPanel = () => {
               <div className="source-bar">
                 <div 
                   className="source-fill schedule-call" 
-                  style={{ width: `${leads.length > 0 ? (leads.filter(lead => lead.source === 'Schedule Call Popup').length / leads.length) * 100 : 0}%` }}
+                  style={{ width: `${leads.length > 0 ? (leads.filter(lead => lead.leadType === 'Schedule Call Popup').length / leads.length) * 100 : 0}%` }}
                 ></div>
               </div>
-              <span>Schedule Call ({leads.filter(lead => lead.source === 'Schedule Call Popup').length})</span>
+              <span>Schedule Call ({leads.filter(lead => lead.leadType === 'Schedule Call Popup').length})</span>
             </div>
             <div className="source-item">
               <div className="source-bar">
                 <div 
                   className="source-fill contact-form" 
-                  style={{ width: `${leads.length > 0 ? (leads.filter(lead => lead.source === 'Contact Form').length / leads.length) * 100 : 0}%` }}
+                  style={{ width: `${leads.length > 0 ? (leads.filter(lead => lead.leadType === 'Contact Form').length / leads.length) * 100 : 0}%` }}
                 ></div>
               </div>
-              <span>Contact Form ({leads.filter(lead => lead.source === 'Contact Form').length})</span>
+              <span>Contact Form ({leads.filter(lead => lead.leadType === 'Contact Form').length})</span>
             </div>
           </div>
         </div>
