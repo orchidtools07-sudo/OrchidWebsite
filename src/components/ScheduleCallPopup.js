@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import emailjs from '@emailjs/browser';
 import './ScheduleCallPopup.css';
+import LeadAPI from '../services/api';
 
 // Initialize EmailJS
 emailjs.init('0JaufsfxPtIz0baYD'); // Replace with your actual public key from EmailJS dashboard
@@ -76,17 +77,14 @@ const ScheduleCallPopup = ({ isOpen, onClose }) => {
       if (response.status === 200) {
         console.log('Email sent successfully!');
         
-        // Save lead to localStorage for admin panel
+        // Save lead via API (with localStorage fallback)
         const leadData = {
           name: formData.name,
           phone: formData.phone,
-          date: new Date().toISOString(),
           source: 'Schedule Call Popup'
         };
         
-        const existingLeads = JSON.parse(localStorage.getItem('websiteLeads') || '[]');
-        existingLeads.push(leadData);
-        localStorage.setItem('websiteLeads', JSON.stringify(existingLeads));
+        await LeadAPI.submitLead(leadData);
         
         setIsSubmitting(false);
         setIsSuccess(true);

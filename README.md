@@ -1,124 +1,211 @@
 # Orchid Infrastructure Developers Website
 
-A React.js website for ORCHID INFRASTRUCTURE DEVELOPERS PVT. LTD., featuring a modern and responsive design that matches your Figma design exactly.
+A modern, responsive website for Orchid Infrastructure Developers with real-time lead management and cross-device synchronization.
 
 ## Features
 
-- **Exact Figma Design Match**: 100% identical to your Figma design
-- **Home Page Only**: Single page design with all content
-- **Responsive Design**: Mobile-friendly layout
-- **Modern UI**: Clean and professional appearance
-- **Project Showcase**: Featured residential and commercial projects
-- **Company Information**: About section with company stats
+- **Modern React Frontend**: Built with React 18 and React Router
+- **Real-time Lead Management**: Cross-device synchronization with backend API
+- **Admin Panel**: Secure admin interface with password-protected delete functionality
+- **Contact Forms**: Multiple contact forms with email integration
+- **Responsive Design**: Mobile-first approach with modern UI/UX
+- **Offline Support**: Automatic fallback to localStorage when offline
 
-## Getting Started
+## Architecture
+
+### Frontend
+- React 18 with functional components and hooks
+- React Router for navigation
+- EmailJS for email notifications
+- CSS3 with modern animations and glassmorphism effects
+
+### Backend
+- Node.js with Express server
+- File-based JSON storage for leads
+- CORS enabled for cross-origin requests
+- RESTful API endpoints
+
+### Lead Management System
+- **Cross-device synchronization**: Leads submitted from any device appear instantly in admin panel
+- **Offline support**: Forms work offline and sync when connection is restored
+- **Real-time updates**: Admin panel polls for new leads every 10 seconds
+- **Secure deletion**: Password-protected lead deletion with luxury UI
+
+## Setup Instructions
 
 ### Prerequisites
-
-- Node.js (version 14 or higher)
-- npm or yarn
+- Node.js (v14 or higher)
+- npm or yarn package manager
 
 ### Installation
 
-1. Install dependencies:
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd OrchidWebsite
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Configure EmailJS** (Optional)
+   - Create an account at [EmailJS](https://www.emailjs.com/)
+   - Update the service IDs and template IDs in:
+     - `src/pages/Contact.js`
+     - `src/components/ScheduleCallPopup.js`
+
+### Running the Application
+
+#### Development Mode (Recommended)
+Run both frontend and backend simultaneously:
 ```bash
-npm install
+npm run dev
 ```
 
-2. **Add Your Images**: Place all project images in the `public/images/` folder with these exact names:
+This will start:
+- Backend server on `http://localhost:3001`
+- Frontend development server on `http://localhost:3000`
 
-#### **Residential Project Images:**
-- `orchid-ivy-building.jpg` - Orchid IVY building photo
-- `orchid-island-building.jpg` - Orchid Island building photo  
-- `orchid-petals-building.jpg` - Orchid Petals building photo
-- `westend-greens-building.jpg` - Westend Greens building photo
-- `mayfield-garden-building.jpg` - Mayfield Garden building photo
+#### Individual Services
 
-#### **Commercial Project Images:**
-- `orchid-centre-building.jpg` - Orchid Centre building photo
-- `orchid-business-park-building.jpg` - Orchid Business Park building photo
-- `orchid-arcade-building.jpg` - Orchid Arcade building photo
-
-#### **About Section Images:**
-- `family-scene.jpg` - Happy Indian family photo
-- `key-handover.jpg` - Key handover scene photo
-
-3. Start the development server:
+**Frontend only:**
 ```bash
 npm start
 ```
 
-4. Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-### Build for Production
-
+**Backend only:**
 ```bash
-npm run build
+npm run server
 ```
 
-This creates a `build` folder with the production-ready files.
+### Production Deployment
 
-## Project Structure
+1. **Build the frontend:**
+   ```bash
+   npm run build
+   ```
+
+2. **Deploy backend:**
+   - Update the API_BASE_URL in `src/services/api.js` with your production backend URL
+   - Deploy the backend server to your hosting platform
+   - Ensure CORS origins include your production domain
+
+3. **Deploy frontend:**
+   - Deploy the `build` folder to your static hosting service (Netlify, Vercel, etc.)
+
+## API Endpoints
+
+### Leads Management
+- `GET /api/leads` - Retrieve all leads
+- `POST /api/leads` - Submit a new lead
+- `DELETE /api/leads/:id` - Delete a specific lead
+- `GET /api/health` - Health check endpoint
+
+### Request/Response Examples
+
+**Submit Lead:**
+```json
+POST /api/leads
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "phone": "+91 9876543210",
+  "subject": "Property Interest",
+  "message": "Looking for residential property",
+  "source": "Contact Form"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "lead": {
+    "id": "1704067200000",
+    "name": "John Doe",
+    "email": "john@example.com",
+    "phone": "+91 9876543210",
+    "subject": "Property Interest",
+    "message": "Looking for residential property",
+    "source": "Contact Form",
+    "date": "2024-01-01T00:00:00.000Z"
+  }
+}
+```
+
+## Admin Panel
+
+### Access
+- URL: `/admin`
+- Username: `admin`
+- Password: `orchid2024`
+
+### Features
+- **Dashboard**: Overview of leads with statistics and charts
+- **Lead Management**: View, export, and delete leads
+- **Real-time Updates**: Automatic refresh every 10 seconds
+- **Online Status**: Visual indicator of connection status
+- **Secure Delete**: Password protection for lead deletion (Password: `Welcome@2025`)
+
+### Delete Password Recovery
+For password assistance, contact **Vikrant Shekhawat** at [developer@oidpl.com](mailto:developer@oidpl.com)
+
+## Cross-Device Synchronization
+
+The application now supports real-time cross-device synchronization:
+
+1. **Form Submissions**: When someone fills a form on any device, it immediately appears in all open admin panels
+2. **Automatic Polling**: Admin panel checks for new leads every 10 seconds
+3. **Offline Support**: Forms work offline and sync when connection is restored
+4. **Fallback System**: Automatic fallback to localStorage if API is unavailable
+
+## File Structure
 
 ```
-public/
-└── images/                    # Place all your images here
-    ├── orchid-ivy-building.jpg
-    ├── orchid-island-building.jpg
-    ├── orchid-petals-building.jpg
-    ├── westend-greens-building.jpg
-    ├── mayfield-garden-building.jpg
-    ├── orchid-centre-building.jpg
-    ├── orchid-business-park-building.jpg
-    ├── orchid-arcade-building.jpg
-    ├── family-scene.jpg
-    └── key-handover.jpg
-
 src/
-├── components/
-│   ├── Header.js          # Header component with company logo
-│   ├── Header.css         # Header styles
-│   ├── Footer.js          # Footer component with contact info
-│   └── Footer.css         # Footer styles
-├── pages/
-│   ├── Home.js            # Main home page content
-│   └── Home.css           # Home page styles
-├── App.js                 # Main app component
-├── App.css                # Global app styles
-├── index.js               # Entry point
-└── index.css              # Global styles
+├── components/           # Reusable React components
+│   ├── ContactPopup.js  # Contact form popup
+│   ├── ScheduleCallPopup.js  # Schedule call popup
+│   └── ...
+├── pages/               # Page components
+│   ├── AdminPanel.js    # Admin dashboard
+│   ├── Contact.js       # Contact page
+│   └── ...
+├── services/            # API and utility services
+│   └── api.js          # Lead management API service
+├── images/             # Static images
+└── ...
+
+server.js               # Backend Express server
+leads.json             # Lead storage file (auto-created)
+package.json           # Dependencies and scripts
 ```
 
-## Image Requirements
+## Environment Variables
 
-- **Format**: JPG or PNG recommended
-- **Size**: 
-  - Project building images: 800x600px minimum
-  - About section images: 400x400px minimum
-- **Quality**: High resolution for professional appearance
-- **Naming**: Use exact file names listed above
+Create a `.env` file for production configuration:
 
-## Customization
+```env
+PORT=3001
+NODE_ENV=production
+FRONTEND_URL=https://your-frontend-domain.com
+```
 
-- **Colors**: Update the color scheme in CSS files (primary color: #1a5f7a)
-- **Content**: Modify project details in `Home.js`
-- **Images**: Replace placeholder images with your actual project photos
-- **Styling**: Adjust CSS files to match your design requirements
+## Troubleshooting
 
-## Technologies Used
+### Common Issues
 
-- React 18
-- React Router (for future expansion)
-- CSS3 with Flexbox and Grid
-- Responsive design principles
+1. **CORS Errors**: Update the `origin` array in `server.js` to include your domain
+2. **API Connection Failed**: Check if backend server is running on correct port
+3. **Leads Not Syncing**: Verify network connection and API endpoint URLs
+4. **EmailJS Not Working**: Check service IDs and template IDs configuration
 
-## Browser Support
+### Support
 
-- Chrome (latest)
-- Firefox (latest)
-- Safari (latest)
-- Edge (latest)
+For technical support, contact [developer@oidpl.com](mailto:developer@oidpl.com)
 
 ## License
 
-This project is created for ORCHID INFRASTRUCTURE DEVELOPERS PVT. LTD.
+Private - Orchid Infrastructure Developers Pvt. Ltd.

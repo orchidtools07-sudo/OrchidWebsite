@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import emailjs from '@emailjs/browser';
 import './Contact.css';
 import ScheduleCallPopup from '../components/ScheduleCallPopup';
+import LeadAPI from '../services/api';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -66,20 +67,17 @@ const Contact = () => {
       if (response.status === 200) {
         console.log('Contact form email sent successfully!');
         
-        // Save lead to localStorage for admin panel
+        // Save lead via API (with localStorage fallback)
         const leadData = {
           name: formData.name,
           email: formData.email,
           phone: formData.phone,
           subject: formData.subject,
           message: formData.message,
-          date: new Date().toISOString(),
           source: 'Contact Form'
         };
         
-        const existingLeads = JSON.parse(localStorage.getItem('websiteLeads') || '[]');
-        existingLeads.push(leadData);
-        localStorage.setItem('websiteLeads', JSON.stringify(existingLeads));
+        await LeadAPI.submitLead(leadData);
         
         setIsSubmitting(false);
         setSubmitStatus('success');

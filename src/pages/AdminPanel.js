@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './AdminPanel.css';
 import LogoWhite from '../images/Logowhite.png';
+import LeadAPI from '../services/api';
 
 const AdminPanel = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -12,6 +13,7 @@ const AdminPanel = () => {
   const [previousLeadCount, setPreviousLeadCount] = useState(null);
   const [deletePopup, setDeletePopup] = useState({ show: false, leadId: null, password: '' });
   const [deleteError, setDeleteError] = useState('');
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
 
   // Delete confirmation password
   const DELETE_PASSWORD = 'Welcome@2025';
@@ -22,13 +24,27 @@ const AdminPanel = () => {
   };
 
   useEffect(() => {
+    // Monitor online/offline status
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  useEffect(() => {
     if (isLoggedIn) {
       loadLeads();
       
-      // Set up automatic polling every 30 seconds
+      // Set up automatic polling every 10 seconds for real-time updates
       const pollInterval = setInterval(() => {
         loadLeads();
-      }, 30000);
+      }, 10000);
       
       return () => clearInterval(pollInterval);
     }
@@ -38,40 +54,24 @@ const AdminPanel = () => {
     const currentLeadCount = leads.length;
     
     if (previousLeadCount !== null && currentLeadCount > previousLeadCount) {
-      // New lead added, show notification or update UI
+      // New lead added, show notification
       console.log('New lead received!');
-      // You could add a toast notification here
+      playNotificationSound();
     }
     
     setPreviousLeadCount(currentLeadCount);
   }, [leads.length, previousLeadCount]);
 
-  useEffect(() => {
-    if (isLoggedIn) {
-      loadLeads();
-      
-      // Listen for localStorage changes from other tabs/windows
-      const handleStorageChange = (e) => {
-        if (e.key === 'websiteLeads') {
-          const newLeads = JSON.parse(e.newValue || '[]');
-          if (newLeads.length > leads.length) {
-            playNotificationSound();
-          }
-          setLeads(newLeads);
-        }
-      };
-      
-      window.addEventListener('storage', handleStorageChange);
-      
-      return () => {
-        window.removeEventListener('storage', handleStorageChange);
-      };
+  const loadLeads = async () => {
+    try {
+      const fetchedLeads = await LeadAPI.getLeads();
+      setLeads(fetchedLeads);
+    } catch (error) {
+      console.error('Error loading leads:', error);
+      // Fallback to localStorage if API fails
+      const localLeads = JSON.parse(localStorage.getItem('websiteLeads') || '[]');
+      setLeads(localLeads);
     }
-  }, [isLoggedIn, leads.length]);
-
-  const loadLeads = () => {
-    const storedLeads = JSON.parse(localStorage.getItem('websiteLeads') || '[]');
-    setLeads(storedLeads);
   };
 
   const handleLogin = (e) => {
@@ -94,17 +94,35 @@ const AdminPanel = () => {
   };
 
   const deleteLead = (index) => {
-    setDeletePopup({ show: true, leadId: index, password: '' });
+    const leadToDelete = leads[index];
+    setDeletePopup({ show: true, leadId: leadToDelete.id || index, password: '' });
     setDeleteError('');
   };
 
-  const confirmDeleteLead = () => {
+  const confirmDeleteLead = async () => {
     if (deletePopup.password === DELETE_PASSWORD) {
-      const updatedLeads = leads.filter((_, i) => i !== deletePopup.leadId);
-      setLeads(updatedLeads);
-      localStorage.setItem('websiteLeads', JSON.stringify(updatedLeads));
-      setDeletePopup({ show: false, leadId: null, password: '' });
-      setDeleteError('');
+      try {
+        const leadToDelete = leads.find(lead => lead.id === deletePopup.leadId) || leads[deletePopup.leadId];
+        
+        if (leadToDelete && leadToDelete.id) {
+          // Delete via API
+          await LeadAPI.deleteLead(leadToDelete.id);
+        } else {
+          // Fallback for leads without ID (legacy localStorage leads)
+          const updatedLeads = leads.filter((_, i) => i !== deletePopup.leadId);
+          setLeads(updatedLeads);
+          localStorage.setItem('websiteLeads', JSON.stringify(updatedLeads));
+        }
+        
+        // Refresh leads from server
+        await loadLeads();
+        
+        setDeletePopup({ show: false, leadId: null, password: '' });
+        setDeleteError('');
+      } catch (error) {
+        console.error('Error deleting lead:', error);
+        setDeleteError('Failed to delete lead. Please try again.');
+      }
     } else {
       setDeleteError('Invalid password. Please try again.');
     }
@@ -123,7 +141,7 @@ const AdminPanel = () => {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "leads.csv");
+    link.setAttribute("download", `leads_${new Date().toISOString().split('T')[0]}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -251,6 +269,10 @@ const AdminPanel = () => {
     <div className="admin-main-content">
       <div className="admin-leads-header">
         <h2>All Leads ({leads.length})</h2>
+        <div className="admin-status-indicator">
+          <span className={`status-dot ${isOnline ? 'online' : 'offline'}`}></span>
+          <span className="status-text">{isOnline ? 'Online' : 'Offline'}</span>
+        </div>
         <button onClick={loadLeads} className="admin-refresh-btn">
           🔄 Refresh
         </button>
@@ -282,7 +304,7 @@ const AdminPanel = () => {
             </thead>
             <tbody>
               {leads.map((lead, index) => (
-                <tr key={index}>
+                <tr key={lead.id || index}>
                   <td>{lead.name}</td>
                   <td>{lead.email || 'N/A'}</td>
                   <td>
@@ -297,6 +319,7 @@ const AdminPanel = () => {
                   <td>
                     <span className={`source-badge ${lead.source === 'Schedule Call Popup' ? 'schedule-call' : 'contact-form'}`}>
                       {lead.source || 'Unknown'}
+                      {lead.offline && <span className="offline-indicator">📴</span>}
                     </span>
                   </td>
                   <td>{new Date(lead.date).toLocaleString()}</td>

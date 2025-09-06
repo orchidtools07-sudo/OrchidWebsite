@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './ContactPopup.css';
+import LeadAPI from '../services/api';
 
 const ContactPopup = ({ isOpen, onClose, title = "Get In Touch" }) => {
   const [formData, setFormData] = useState({
@@ -33,27 +34,13 @@ const ContactPopup = ({ isOpen, onClose, title = "Get In Touch" }) => {
         phone: formData.phone,
         subject: `Property Interest: ${formData.propertyType}`,
         message: formData.message || 'Contact form submission',
-        date: new Date().toISOString(),
         source: 'Contact Form'
       };
 
-      // Get existing leads from localStorage
-      const existingLeads = JSON.parse(localStorage.getItem('websiteLeads') || '[]');
+      // Submit lead via API (with localStorage fallback)
+      await LeadAPI.submitLead(leadData);
       
-      // Add new lead to the beginning of the array
-      const updatedLeads = [leadData, ...existingLeads];
-      
-      // Save to localStorage
-      localStorage.setItem('websiteLeads', JSON.stringify(updatedLeads));
-      
-      // Trigger storage event for real-time admin panel updates
-      window.dispatchEvent(new StorageEvent('storage', {
-        key: 'websiteLeads',
-        newValue: JSON.stringify(updatedLeads),
-        oldValue: JSON.stringify(existingLeads)
-      }));
-
-      // Simulate form submission delay
+      // Simulate form submission delay for UX
       setTimeout(() => {
         setIsSubmitting(false);
         setSubmitStatus('success');
