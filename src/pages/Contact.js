@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import emailjs from '@emailjs/browser';
 import './Contact.css';
 import ScheduleCallPopup from '../components/ScheduleCallPopup';
 
@@ -18,6 +19,9 @@ const Contact = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Initialize EmailJS
+    emailjs.init('YOUR_PUBLIC_KEY');
+    
     // Trigger animations on component mount
     const timer = setTimeout(() => {
       const elements = document.querySelectorAll('.contact-animate-on-load');
@@ -42,24 +46,66 @@ const Contact = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setSubmitStatus('');
     
-    // Simulate form submission
-    setTimeout(() => {
+    try {
+      // Send email via EmailJS
+      const response = await emailjs.send(
+        'service_jsimrnn',
+        'template_7tuttjj',
+        {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          subject: formData.subject,
+          message: formData.message,
+          current_date: new Date().toLocaleString(),
+        }
+      );
+
+      if (response.status === 200) {
+        console.log('Contact form email sent successfully!');
+        
+        // Save lead to localStorage for admin panel
+        const leadData = {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          subject: formData.subject,
+          message: formData.message,
+          date: new Date().toISOString(),
+          source: 'Contact Form'
+        };
+        
+        const existingLeads = JSON.parse(localStorage.getItem('websiteLeads') || '[]');
+        existingLeads.push(leadData);
+        localStorage.setItem('websiteLeads', JSON.stringify(existingLeads));
+        
+        setIsSubmitting(false);
+        setSubmitStatus('success');
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          subject: '',
+          message: ''
+        });
+        
+        // Clear success message after 5 seconds
+        setTimeout(() => {
+          setSubmitStatus('');
+        }, 5000);
+      }
+    } catch (error) {
+      console.error('Contact form email error:', error);
       setIsSubmitting(false);
-      setSubmitStatus('success');
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        subject: '',
-        message: ''
-      });
+      setSubmitStatus('error');
       
-      // Clear success message after 5 seconds
+      // Clear error message after 5 seconds
       setTimeout(() => {
         setSubmitStatus('');
       }, 5000);
-    }, 2000);
+    }
   };
 
   const handleScheduleCall = () => {

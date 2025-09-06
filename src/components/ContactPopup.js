@@ -25,22 +25,57 @@ const ContactPopup = ({ isOpen, onClose, title = "Get In Touch" }) => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simulate form submission
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setSubmitStatus('success');
+    try {
+      // Create lead object with timestamp and source
+      const leadData = {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        subject: `Property Interest: ${formData.propertyType}`,
+        message: formData.message || 'Contact form submission',
+        date: new Date().toISOString(),
+        source: 'Contact Form'
+      };
+
+      // Get existing leads from localStorage
+      const existingLeads = JSON.parse(localStorage.getItem('websiteLeads') || '[]');
+      
+      // Add new lead to the beginning of the array
+      const updatedLeads = [leadData, ...existingLeads];
+      
+      // Save to localStorage
+      localStorage.setItem('websiteLeads', JSON.stringify(updatedLeads));
+      
+      // Trigger storage event for real-time admin panel updates
+      window.dispatchEvent(new StorageEvent('storage', {
+        key: 'websiteLeads',
+        newValue: JSON.stringify(updatedLeads),
+        oldValue: JSON.stringify(existingLeads)
+      }));
+
+      // Simulate form submission delay
       setTimeout(() => {
-        setSubmitStatus('');
-        setFormData({
-          name: '',
-          email: '',
-          phone: '',
-          message: '',
-          propertyType: 'residential'
-        });
-        onClose();
-      }, 2000);
-    }, 1500);
+        setIsSubmitting(false);
+        setSubmitStatus('success');
+        setTimeout(() => {
+          setSubmitStatus('');
+          setFormData({
+            name: '',
+            email: '',
+            phone: '',
+            message: '',
+            propertyType: 'residential'
+          });
+          onClose();
+        }, 2000);
+      }, 1500);
+      
+    } catch (error) {
+      console.error('Error saving lead:', error);
+      setIsSubmitting(false);
+      setSubmitStatus('error');
+      setTimeout(() => setSubmitStatus(''), 3000);
+    }
   };
 
   const handleOverlayClick = (e) => {

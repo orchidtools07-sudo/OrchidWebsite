@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Certification.css';
 import Certificate from  '../images/orchid-award.png';
 const Certification = () => {
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
 
@@ -174,11 +176,7 @@ const Certification = () => {
             </p>
             
             <div className="certification-cta-buttons">
-              <button className="certification-cta-primary">
-                Start Your Project
-                <span className="certification-btn-glow"></span>
-              </button>
-              <button className="certification-cta-secondary">
+              <button className="certification-cta-secondary" onClick={() => navigate('/projects')}>
                 View Our Work
               </button>
             </div>

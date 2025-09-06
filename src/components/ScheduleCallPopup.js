@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import emailjs from '@emailjs/browser';
 import './ScheduleCallPopup.css';
+
+// Initialize EmailJS
+emailjs.init('0JaufsfxPtIz0baYD'); // Replace with your actual public key from EmailJS dashboard
 
 const ScheduleCallPopup = ({ isOpen, onClose }) => {
   const [formData, setFormData] = useState({
@@ -8,6 +12,7 @@ const ScheduleCallPopup = ({ isOpen, onClose }) => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     if (isOpen) {
@@ -43,17 +48,64 @@ const ScheduleCallPopup = ({ isOpen, onClose }) => {
     }
 
     setIsSubmitting(true);
+    setError('');
     
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setIsSuccess(true);
+    console.log('Attempting to send email with data:', {
+      name: formData.name,
+      phone: formData.phone,
+      serviceId: 'service_jsimrnn',
+      templateId: 'template_7tuttjj'
+    });
+    
+    try {
+      const response = await emailjs.send(
+        'service_jsimrnn',
+        'template_7tuttjj',
+        {
+          name: formData.name,
+          phone: formData.phone,
+          current_date: new Date().toLocaleString(),
+          to_email: 'orchidtools07@gmail.com',
+          from_name: 'Website Contact Form',
+          reply_to: 'orchidtools07@gmail.com'
+        }
+      );
       
-      // Auto close after success
-      setTimeout(() => {
-        onClose();
-      }, 2000);
-    }, 1500);
+      console.log('EmailJS Response:', response);
+      
+      if (response.status === 200) {
+        console.log('Email sent successfully!');
+        
+        // Save lead to localStorage for admin panel
+        const leadData = {
+          name: formData.name,
+          phone: formData.phone,
+          date: new Date().toISOString(),
+          source: 'Schedule Call Popup'
+        };
+        
+        const existingLeads = JSON.parse(localStorage.getItem('websiteLeads') || '[]');
+        existingLeads.push(leadData);
+        localStorage.setItem('websiteLeads', JSON.stringify(existingLeads));
+        
+        setIsSubmitting(false);
+        setIsSuccess(true);
+        
+        setTimeout(() => {
+          onClose();
+        }, 3000);
+      } else {
+        console.error('EmailJS returned non-200 status:', response.status);
+        setError('Failed to send message. Please try again.');
+        setIsSubmitting(false);
+      }
+    } catch (error) {
+      console.error('Email Error Details:', error);
+      console.error('Error message:', error.message);
+      console.error('Error text:', error.text);
+      setError(`Failed to send message: ${error.text || error.message}`);
+      setIsSubmitting(false);
+    }
   };
 
   const handleOverlayClick = (e) => {
@@ -114,7 +166,7 @@ const ScheduleCallPopup = ({ isOpen, onClose }) => {
                 <label className="schedule-form-label">Phone Number</label>
                 <div className="schedule-input-wrapper">
                   <svg className="schedule-input-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                    <polyline points="22,4 12,14.01 9,11.01"/>
                   </svg>
                   <input
                     type="tel"
@@ -147,6 +199,7 @@ const ScheduleCallPopup = ({ isOpen, onClose }) => {
                   </>
                 )}
               </button>
+              {error && <p style={{ color: 'red' }}>{error}</p>}
             </form>
           ) : (
             <div className="schedule-success-message">

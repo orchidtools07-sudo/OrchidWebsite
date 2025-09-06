@@ -1,54 +1,141 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import HeroVideo from '../images/hero-video.mp4';
+import './HeroSection.css';
 
 const HeroSection = ({ onContactClick }) => {
   const navigate = useNavigate();
+  const [currentMediaUrl, setCurrentMediaUrl] = useState('');
+  const [isVideo, setIsVideo] = useState(true);
+  const [mediaType, setMediaType] = useState('');
+
+  useEffect(() => {
+    // Load saved media info on component mount
+    loadSavedMedia();
+    
+    // Listen for video updates from admin panel
+    const handleVideoUpdate = (event) => {
+      const { videoUrl, isVideo: mediaIsVideo, mediaType: type } = event.detail;
+      setCurrentMediaUrl(videoUrl);
+      setIsVideo(true);
+      setMediaType(type || '');
+    };
+
+    // Listen for image updates from admin panel
+    const handleImageUpdate = (event) => {
+      const { imageUrl, isVideo: mediaIsVideo, mediaType: type } = event.detail;
+      setCurrentMediaUrl(imageUrl);
+      setIsVideo(false);
+      setMediaType(type || '');
+    };
+
+    window.addEventListener('heroVideoUpdated', handleVideoUpdate);
+    window.addEventListener('heroImageUpdated', handleImageUpdate);
+    
+    return () => {
+      window.removeEventListener('heroVideoUpdated', handleVideoUpdate);
+      window.removeEventListener('heroImageUpdated', handleImageUpdate);
+    };
+  }, []);
+
+  const loadSavedMedia = () => {
+    try {
+      // Check for saved video
+      const savedVideoInfo = localStorage.getItem('heroVideoInfo');
+      const savedImageInfo = localStorage.getItem('heroImageInfo');
+      
+      if (savedVideoInfo) {
+        const videoInfo = JSON.parse(savedVideoInfo);
+        setIsVideo(true);
+        setMediaType(videoInfo.type);
+      } else if (savedImageInfo) {
+        const imageInfo = JSON.parse(savedImageInfo);
+        setIsVideo(false);
+        setMediaType(imageInfo.type);
+      }
+    } catch (error) {
+      console.error('Error loading saved media:', error);
+    }
+  };
 
   const handleExploreProjects = () => {
     navigate('/projects');
   };
 
+  // Determine what media to show
+  const mediaSource = currentMediaUrl || HeroVideo;
+  const showVideo = currentMediaUrl ? isVideo : true; // Default to video if no custom media
+
   return (
     <section className="hero-section" style={{ 
-      width: '100%', 
-      height: '52rem',
-      position: 'relative', 
+      position: 'relative',
+      width: '100%',
       overflow: 'hidden',
       margin: 0,
       padding: 0,
       display: 'block'
     }}>
-      <video 
-        autoPlay 
-        muted 
-        loop 
-        playsInline
-        className="hero-video"
-        style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          minWidth: '100%',
-          minHeight: '100%',
-          width: 'auto',
-          height: 'auto',
-          zIndex: 1,
-          transform: 'translateX(-50%) translateY(-50%)',
-          objectFit: 'cover'
-        }}
-      >
-        <source src={HeroVideo} type="video/mp4" />
-      </video>
-      <div className="hero-overlay" style={{ 
+      <div className="hero-media-container" style={{ 
         position: 'absolute', 
         top: 0, 
         left: 0, 
         width: '100%', 
         height: '100%', 
-        backgroundColor: 'rgba(0, 0, 0, 0.3)',
-        zIndex: 2
-      }}></div>
+        zIndex: 1
+      }}>
+        {showVideo ? (
+          <video 
+            key={mediaSource} // Force re-render when video changes
+            className="hero-video" 
+            autoPlay 
+            loop 
+            muted 
+            playsInline
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              minWidth: '100%',
+              minHeight: '100%',
+              width: 'auto',
+              height: 'auto',
+              transform: 'translateX(-50%) translateY(-50%)',
+              objectFit: 'cover'
+            }}
+          >
+            <source src={mediaSource} type={mediaType || "video/mp4"} />
+            Your browser does not support the video tag.
+          </video>
+        ) : (
+          <img 
+            key={mediaSource} // Force re-render when image changes
+            className="hero-image" 
+            src={mediaSource} 
+            alt="Hero Background"
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              minWidth: '100%',
+              minHeight: '100%',
+              width: 'auto',
+              height: 'auto',
+              transform: 'translateX(-50%) translateY(-50%)',
+              objectFit: 'cover'
+            }}
+          />
+        )}
+        <div className="hero-overlay" style={{ 
+          position: 'absolute', 
+          top: 0, 
+          left: 0, 
+          width: '100%', 
+          height: '100%', 
+          backgroundColor: 'rgba(0, 0, 0, 0.3)',
+          zIndex: 2
+        }}></div>
+      </div>
+      
       <div className="hero-content" style={{ 
         position: 'absolute', 
         top: '50%', 
