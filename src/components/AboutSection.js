@@ -1,7 +1,14 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import AboutImage from '../images/About-Us-Image.png';
 
 const AboutSection = () => {
+  const navigate = useNavigate();
+
+  const handleLearnMore = () => {
+    navigate('/about');
+  };
+
   return (
     <section className="about-section-modern">
       <div className="container">
@@ -15,7 +22,7 @@ const AboutSection = () => {
               the orchid family, each one as captivating and 
               charismatic as dancing butterflies.
             </p>
-            <button className="learn-more-btn-modern">LEARN MORE</button>
+            <button className="learn-more-btn-modern" onClick={handleLearnMore}>LEARN MORE</button>
           </div>
           <div className="about-images-modern">
             <div className="single-image-container">

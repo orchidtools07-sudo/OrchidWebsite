@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Contact.css';
+import ScheduleCallPopup from '../components/ScheduleCallPopup';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -11,6 +13,9 @@ const Contact = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState('');
+  const [scheduleCallPopup, setScheduleCallPopup] = useState(false);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Trigger animations on component mount
@@ -55,6 +60,14 @@ const Contact = () => {
         setSubmitStatus('');
       }, 5000);
     }, 2000);
+  };
+
+  const handleScheduleCall = () => {
+    setScheduleCallPopup(true);
+  };
+
+  const handleCloseScheduleCallPopup = () => {
+    setScheduleCallPopup(false);
   };
 
   return (
@@ -308,17 +321,21 @@ Gurgaon - 122 002.<br />
             </p>
             
             <div className="contact-cta-buttons">
-              <button className="contact-cta-primary">
+              <button className="contact-cta-primary" onClick={handleScheduleCall}>
                 Schedule Consultation
                 <span className="contact-btn-glow"></span>
               </button>
-              <button className="contact-cta-secondary">
+              <button className="contact-cta-secondary" onClick={() => navigate('/projects')}>
                 View Portfolio
               </button>
             </div>
           </div>
         </div>
       </section>
+      <ScheduleCallPopup 
+        isOpen={scheduleCallPopup} 
+        onClose={handleCloseScheduleCallPopup} 
+      />
     </div>
   );
 };

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Projects.css';
+import ScheduleCallPopup from '../components/ScheduleCallPopup';
 
 // Import images same as ResidentialProjects and CommercialProjects
 import OrchidIVYImage from '../images/Residential/orchid-ivy.jpg';
@@ -22,8 +24,10 @@ import OrchidGlobalBusinessParkLogo from '../images/Logo/orchid-global-business-
 import PetalsShoppingArcadeLogo from '../images/Logo/petals-shopping-arcade-logo.png';
 
 const Projects = () => {
+  const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState('all');
   const [selectedProject, setSelectedProject] = useState(null);
+  const [scheduleCallPopup, setScheduleCallPopup] = useState(false);
 
   // Project data using same images as ResidentialProjects and CommercialProjects
   const projectsData = {
@@ -239,6 +243,16 @@ const Projects = () => {
     document.body.style.overflow = 'unset';
   };
 
+  const handleScheduleVisit = () => {
+    setSelectedProject(null);
+    document.body.style.overflow = 'unset';
+    navigate('/contact');
+  };
+
+  const closeScheduleCallPopup = () => {
+    setScheduleCallPopup(false);
+  };
+
   const featuredProject = projectsData.residential.find(p => p.id === 'orchid-ivy');
 
   return (
@@ -312,7 +326,7 @@ const Projects = () => {
                 
                 <button 
                   className="projects-featured-btn"
-                  onClick={() => openModal(featuredProject)}
+                  onClick={() => window.open('https://orchidivyfloors.com/', '_blank')}
                 >
                   Explore Project
                 </button>
@@ -467,6 +481,23 @@ const Projects = () => {
                 ) : (
                   <img src={selectedProject.image} alt={selectedProject.name} className="projects-single-image" />
                 )}
+                
+                {/* Map Section */}
+                <div className="projects-modal-map">
+                  <h4>Location</h4>
+                  <div className="projects-map-container">
+                    <iframe
+                      src={`https://www.google.com/maps/embed/v1/place?key=YOUR_API_KEY&q=${encodeURIComponent(selectedProject.location)}`}
+                      width="100%"
+                      height="300"
+                      style={{ border: 0, borderRadius: '12px' }}
+                      allowFullScreen=""
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                      title={`Map of ${selectedProject.name}`}
+                    ></iframe>
+                  </div>
+                </div>
               </div>
 
               <div className="projects-modal-details">
@@ -501,13 +532,15 @@ const Projects = () => {
                 </div>
 
                 <div className="projects-modal-actions">
-                  <button className="projects-btn-primary">Get More Info</button>
-                  <button className="projects-btn-secondary">Schedule Visit</button>
+                  <button className="projects-btn-secondary" onClick={handleScheduleVisit}>Schedule Visit</button>
                 </div>
               </div>
             </div>
           </div>
         </div>
+      )}
+      {scheduleCallPopup && (
+        <ScheduleCallPopup onClose={closeScheduleCallPopup} />
       )}
     </div>
   );

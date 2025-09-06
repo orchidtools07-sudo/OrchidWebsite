@@ -71,7 +71,10 @@ const Hospitality = () => {
                 </div>
                 
                 <div className={`hospitality-cta-section ${isVisible ? 'animate-in' : ''}`}>
-                  <button className="hospitality-visit-btn">
+                  <button 
+                    className="hospitality-visit-btn"
+                    onClick={() => window.open('https://www.itchotels.com/in/en/fortuneselectglobal-gurugram', '_blank')}
+                  >
                     <span>Visit Website</span>
                     <div className="hospitality-btn-glow"></div>
                   </button>

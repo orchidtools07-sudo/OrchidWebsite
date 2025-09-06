@@ -11,11 +11,15 @@ import CommercialProjects from '../components/CommercialProjects';
 import BlogSection from '../components/BlogSection';
 import CTASection from '../components/CTASection';
 import ContactPopup from '../components/ContactPopup';
+import ScheduleCallPopup from '../components/ScheduleCallPopup';
+
 const Home = () => {
   const [contactPopup, setContactPopup] = useState({
     isOpen: false,
     title: "Get In Touch"
   });
+
+  const [scheduleCallPopup, setScheduleCallPopup] = useState(false);
 
   const openContactPopup = (title = "Get In Touch") => {
     setContactPopup({
@@ -31,6 +35,14 @@ const Home = () => {
     });
   };
 
+  const openScheduleCallPopup = () => {
+    setScheduleCallPopup(true);
+  };
+
+  const closeScheduleCallPopup = () => {
+    setScheduleCallPopup(false);
+  };
+
   return (
     <div className="home">
       <HeroSection onContactClick={() => openContactPopup("Contact Us")} />
@@ -43,13 +55,21 @@ const Home = () => {
         <WhyChooseUs />
         <CommercialProjects />
         <BlogSection />
-        <CTASection onContactClick={() => openContactPopup("Let's Build Your Future")} />
+        <CTASection 
+          onContactClick={() => openContactPopup("Let's Build Your Future")} 
+          onScheduleCallClick={openScheduleCallPopup}
+        />
       </main>
       
       <ContactPopup 
         isOpen={contactPopup.isOpen}
         onClose={closeContactPopup}
         title={contactPopup.title}
+      />
+      
+      <ScheduleCallPopup 
+        isOpen={scheduleCallPopup}
+        onClose={closeScheduleCallPopup}
       />
     </div>
   );

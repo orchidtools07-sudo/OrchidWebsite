@@ -1,13 +1,26 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './About.css';
 import AboutOrchid1 from '../images/Residential/orchid-ivy.jpg';
 import AboutOrchid2 from '../images/Residential/interiour.jpg';
 import AboutOrchid3 from '../images/Residential/orchid-metropols.jpg';
 import AboutOrchid4 from '../images/Residential/Interiou2.jpg';
+import ScheduleCallPopup from '../components/ScheduleCallPopup';
 
 const About = () => {
+  const navigate = useNavigate();
+  const [scheduleCallPopup, setScheduleCallPopup] = useState(false);
+
+  const handleExploreProjects = () => {
+    navigate('/projects');
+  };
+
   const handleScheduleConsultation = () => {
-    // Add logic to open ContactPopup here
+    setScheduleCallPopup(true);
+  };
+
+  const closeScheduleCallPopup = () => {
+    setScheduleCallPopup(false);
   };
 
   return (
@@ -271,7 +284,7 @@ const About = () => {
               Connect with our experts to explore exclusive opportunities.
             </p>
             <div className="cta-buttons">
-              <button className="btn-primary premium-btn">
+              <button className="btn-primary premium-btn" onClick={handleExploreProjects}>
                 <span>Explore Projects</span>
                 <span className="btn-arrow">→</span>
               </button>
@@ -286,6 +299,12 @@ const About = () => {
           </div>
         </div>
       </section>
+
+      {/* Schedule Call Popup */}
+      <ScheduleCallPopup 
+        isOpen={scheduleCallPopup}
+        onClose={closeScheduleCallPopup}
+      />
     </div>
   );
 };

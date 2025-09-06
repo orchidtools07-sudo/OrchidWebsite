@@ -1,6 +1,6 @@
 import React from 'react';
 
-const CTASection = ({ onContactClick }) => {
+const CTASection = ({ onContactClick, onScheduleCallClick }) => {
   return (
     <section className="cta-section-elegant">
       <div className="cta-container">
@@ -16,7 +16,7 @@ const CTASection = ({ onContactClick }) => {
                 <path d="M5 12h14M12 5l7 7-7 7"/>
               </svg>
             </button>
-            <button className="cta-btn-secondary">
+            <button className="cta-btn-secondary" onClick={onScheduleCallClick}>
               <span>Schedule a Call</span>
             </button>
           </div>

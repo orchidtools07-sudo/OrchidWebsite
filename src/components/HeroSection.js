@@ -1,7 +1,14 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import HeroVideo from '../images/hero-video.mp4';
 
 const HeroSection = ({ onContactClick }) => {
+  const navigate = useNavigate();
+
+  const handleExploreProjects = () => {
+    navigate('/projects');
+  };
+
   return (
     <section className="hero-section" style={{ 
       width: '100%', 
@@ -83,17 +90,21 @@ const HeroSection = ({ onContactClick }) => {
             flexWrap: 'wrap',
             alignItems: 'center'
           }}>
-            <button className="btn-primary" style={{
-              padding: '15px 30px',
-              backgroundColor: '#1e3f5f',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              fontSize: '1.1rem',
-              fontWeight: '600',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease',
-            }}>
+            <button 
+              className="btn-primary" 
+              onClick={handleExploreProjects}
+              style={{
+                padding: '15px 30px',
+                backgroundColor: '#1e3f5f',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '1.1rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+              }}
+            >
               Explore Projects
             </button>
             <button 
