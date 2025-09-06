@@ -63,13 +63,18 @@ const AdminPanel = () => {
   }, [leads.length, previousLeadCount]);
 
   const loadLeads = async () => {
+    console.log('🔄 AdminPanel: Loading leads...');
     try {
       const fetchedLeads = await LeadAPI.getLeads();
+      console.log('📊 AdminPanel: Received leads:', fetchedLeads.length, 'leads');
+      console.log('📋 AdminPanel: Lead data:', fetchedLeads);
       setLeads(fetchedLeads);
+      console.log('✅ AdminPanel: Leads state updated successfully');
     } catch (error) {
-      console.error('Error loading leads:', error);
+      console.error('❌ AdminPanel: Error loading leads:', error);
       // Fallback to localStorage if API fails
       const localLeads = JSON.parse(localStorage.getItem('websiteLeads') || '[]');
+      console.log('💾 AdminPanel: Fallback to localStorage:', localLeads.length, 'leads');
       setLeads(localLeads);
     }
   };
@@ -265,82 +270,111 @@ const AdminPanel = () => {
     </div>
   );
 
-  const renderLeads = () => (
-    <div className="admin-main-content">
-      <div className="admin-leads-header">
-        <h2>All Leads ({leads.length})</h2>
-        <div className="admin-status-indicator">
-          <span className={`status-dot ${isOnline ? 'online' : 'offline'}`}></span>
-          <span className="status-text">{isOnline ? 'Online' : 'Offline'}</span>
+  const renderLeads = () => {
+    console.log('🎨 AdminPanel: Rendering leads component, current leads count:', leads.length);
+    
+    return (
+      <div className="admin-main-content">
+        <div className="admin-leads-header">
+          <h2>All Leads ({leads.length})</h2>
+          <div className="admin-status-indicator">
+            <span className={`status-dot ${isOnline ? 'online' : 'offline'}`}></span>
+            <span className="status-text">{isOnline ? 'Online' : 'Offline'}</span>
+          </div>
+          <button onClick={() => {
+            console.log('🔄 AdminPanel: Manual refresh triggered');
+            loadLeads();
+          }} className="admin-refresh-btn">
+            🔄 Refresh
+          </button>
+          <button onClick={exportLeads} className="admin-export-btn">
+            📥 Export CSV
+          </button>
         </div>
-        <button onClick={loadLeads} className="admin-refresh-btn">
-          🔄 Refresh
-        </button>
-        <button onClick={exportLeads} className="admin-export-btn">
-          📥 Export CSV
-        </button>
-      </div>
 
-      {leads.length === 0 ? (
-        <div className="admin-no-leads">
-          <div className="no-leads-icon">📋</div>
-          <h3>No leads yet</h3>
-          <p>Leads from your website forms will appear here</p>
-        </div>
-      ) : (
-        <div className="admin-table-container">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Subject</th>
-                <th>Message</th>
-                <th>Source</th>
-                <th>Date</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {leads.map((lead, index) => (
-                <tr key={lead.id || index}>
-                  <td>{lead.name}</td>
-                  <td>{lead.email || 'N/A'}</td>
-                  <td>
-                    <a href={`tel:${lead.phone}`} className="admin-phone-link">
-                      {lead.phone}
-                    </a>
-                  </td>
-                  <td>{lead.subject || 'N/A'}</td>
-                  <td className="message-cell" title={lead.message}>
-                    {lead.message ? (lead.message.length > 50 ? lead.message.substring(0, 50) + '...' : lead.message) : 'N/A'}
-                  </td>
-                  <td>
-                    <span className={`source-badge ${lead.source === 'Schedule Call Popup' ? 'schedule-call' : 'contact-form'}`}>
-                      {lead.source || 'Unknown'}
-                      {lead.offline && <span className="offline-indicator">📴</span>}
-                    </span>
-                  </td>
-                  <td>{new Date(lead.date).toLocaleString()}</td>
-                  <td>
-                    {canDeleteLeads() && (
-                      <button 
-                        className="admin-delete-btn"
-                        onClick={() => deleteLead(index)}
-                      >
-                        🗑️
-                      </button>
-                    )}
-                  </td>
+        {leads.length === 0 ? (
+          <div className="admin-no-leads">
+            <div className="no-leads-icon">📋</div>
+            <h3>No leads yet</h3>
+            <p>Leads from your website forms will appear here</p>
+            <button onClick={() => {
+              console.log('🔍 AdminPanel: Debug button clicked - checking localStorage');
+              const localData = localStorage.getItem('websiteLeads');
+              console.log('📊 Raw localStorage data:', localData);
+              if (localData) {
+                const parsed = JSON.parse(localData);
+                console.log('📋 Parsed localStorage leads:', parsed);
+              }
+            }} style={{
+              background: '#2B5786',
+              color: 'white',
+              border: 'none',
+              padding: '10px 20px',
+              borderRadius: '5px',
+              cursor: 'pointer',
+              marginTop: '20px'
+            }}>
+              🔍 Debug localStorage
+            </button>
+          </div>
+        ) : (
+          <div className="admin-table-container">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Subject</th>
+                  <th>Message</th>
+                  <th>Source</th>
+                  <th>Date</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </div>
-  );
+              </thead>
+              <tbody>
+                {leads.map((lead, index) => {
+                  console.log('📋 AdminPanel: Rendering lead row:', index, lead);
+                  return (
+                    <tr key={lead.id || index}>
+                      <td>{lead.name}</td>
+                      <td>{lead.email || 'N/A'}</td>
+                      <td>
+                        <a href={`tel:${lead.phone}`} className="admin-phone-link">
+                          {lead.phone}
+                        </a>
+                      </td>
+                      <td>{lead.subject || 'N/A'}</td>
+                      <td className="message-cell" title={lead.message}>
+                        {lead.message ? (lead.message.length > 50 ? lead.message.substring(0, 50) + '...' : lead.message) : 'N/A'}
+                      </td>
+                      <td>
+                        <span className={`source-badge ${lead.source === 'Schedule Call Popup' ? 'schedule-call' : 'contact-form'}`}>
+                          {lead.source || 'Unknown'}
+                          {lead.offline && <span className="offline-indicator">📴</span>}
+                        </span>
+                      </td>
+                      <td>{new Date(lead.date).toLocaleString()}</td>
+                      <td>
+                        {canDeleteLeads() && (
+                          <button 
+                            className="admin-delete-btn"
+                            onClick={() => deleteLead(index)}
+                          >
+                            🗑️
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   if (!isLoggedIn) {
     return (
