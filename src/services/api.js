@@ -184,4 +184,6 @@ class LeadAPI {
   }
 }
 
-export default new LeadAPI();
+// Create instance and export as default
+const leadAPIInstance = new LeadAPI();
+export default leadAPIInstance;
