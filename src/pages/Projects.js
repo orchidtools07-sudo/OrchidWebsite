@@ -14,6 +14,13 @@ import GlobalArcade from '../images/Commercial/Global-Arcade.jpg';
 import GlobalBusinessPark from '../images/Commercial/global-businespark.jpg';
 import ShoppingArcade from '../images/Commercial/shopping-arcade.jpg';
 
+// Import logo images
+import OrchidCentreLogo from '../images/Logo/orchid-centre-logo.png';
+import OrchidBusinessParkLogo from '../images/Logo/orchid-business-park-logo.png';
+import OrchidGlobalArcadeLogo from '../images/Logo/orchid-global-arcade-logo.png';
+import OrchidGlobalBusinessParkLogo from '../images/Logo/orchid-global-business-park-logo.png';
+import PetalsShoppingArcadeLogo from '../images/Logo/petals-shopping-arcade-logo.png';
+
 const Projects = () => {
   const [activeFilter, setActiveFilter] = useState('all');
   const [selectedProject, setSelectedProject] = useState(null);
@@ -254,20 +261,7 @@ const Projects = () => {
             <p className="projects-hero-subtitle">
               Discover our portfolio of luxury residential and commercial developments that redefine modern living and business excellence
             </p>
-            <div className="projects-hero-stats">
-              <div className="projects-stat-item">
-                <span className="projects-stat-number">25+</span>
-                <span className="projects-stat-label">Projects Completed</span>
-              </div>
-              <div className="projects-stat-item">
-                <span className="projects-stat-number">10K+</span>
-                <span className="projects-stat-label">Happy Families</span>
-              </div>
-              <div className="projects-stat-item">
-                <span className="projects-stat-number">15+</span>
-                <span className="projects-stat-label">Years Experience</span>
-              </div>
-            </div>
+       
           </div>
         </div>
       </section>
@@ -324,6 +318,69 @@ const Projects = () => {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Company Logos Section */}
+      <section className="projects-logos-section">
+        <div className="container">
+          <div className="projects-section-header">
+            <span className="projects-section-badge">Our Brands</span>
+            <h2 className="projects-section-title">Our <span className="projects-gradient-text">Portfolio</span></h2>
+            <p className="projects-section-subtitle">Discover our diverse range of premium developments across different segments</p>
+          </div>
+          
+          <div className="projects-logos-container">
+            <div className="projects-logos-track">
+              <div className="projects-logo-item">
+                <div className="projects-logo-card">
+                  <div className="projects-logo-image">
+                    <img src={OrchidCentreLogo} alt="Orchid Centre Logo" />
+                  </div>
+               
+                </div>
+              </div>
+              
+              <div className="projects-logo-item">
+                <div className="projects-logo-card">
+                  <div className="projects-logo-image">
+                    <img src={OrchidBusinessParkLogo} alt="Orchid Business Park Logo" />
+                  </div>
+                
+                </div>
+              </div>
+              
+              <div className="projects-logo-item">
+                <div className="projects-logo-card">
+                  <div className="projects-logo-image">
+                    <img src={OrchidGlobalArcadeLogo} alt="Orchid Global Arcade Logo" />
+                  </div>
+               
+                </div>
+              </div>
+              
+              <div className="projects-logo-item">
+                <div className="projects-logo-card">
+                  <div className="projects-logo-image">
+                    <img src={OrchidGlobalBusinessParkLogo} alt="Orchid Global Business Park Logo" />
+                  </div>
+                
+                </div>
+              </div>
+              
+              <div className="projects-logo-item">
+                <div className="projects-logo-card">
+                  <div className="projects-logo-image">
+                    <img src={PetalsShoppingArcadeLogo} alt="Petals Shopping Arcade Logo" />
+                  </div>
+                
+                </div>
+              </div>
+            </div>
+            
+            <div className="projects-logos-gradient-left"></div>
+            <div className="projects-logos-gradient-right"></div>
           </div>
         </div>
       </section>
