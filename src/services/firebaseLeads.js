@@ -7,7 +7,8 @@ import {
   onSnapshot,
   orderBy,
   query,
-  serverTimestamp 
+  serverTimestamp,
+  updateDoc
 } from 'firebase/firestore';
 import { db } from './firebaseConfig';
 
@@ -29,9 +30,9 @@ class FirebaseLeadService {
         phone: leadData.phone,
         subject: leadData.subject || 'No subject',
         message: leadData.message || '',
-        source: leadData.source || 'Unknown',
+        status: leadData.status || 'unread',
         timestamp: serverTimestamp(),
-        status: 'new'
+        leadType: leadData.leadType || 'general'
       });
 
       console.log('✅ Lead submitted to Firebase:', docRef.id);
@@ -63,6 +64,23 @@ class FirebaseLeadService {
       return leads;
     } catch (error) {
       console.error('❌ Error fetching leads from Firebase:', error);
+      throw error;
+    }
+  }
+
+  // Update lead status
+  async updateLeadStatus(leadId, status) {
+    try {
+      console.log('📝 Updating lead status:', leadId, status);
+      
+      await updateDoc(doc(db, this.collectionName, leadId), {
+        status: status
+      });
+      
+      console.log('✅ Lead status updated:', leadId, status);
+      return { success: true };
+    } catch (error) {
+      console.error('❌ Error updating lead status:', error);
       throw error;
     }
   }

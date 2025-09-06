@@ -64,7 +64,8 @@ const Contact = () => {
         phone: formData.phone,
         subject: formData.subject,
         message: formData.message,
-        source: 'Contact Form'
+        status: 'unread',
+        leadType: 'Contact Form'
       };
       
       console.log('💾 Saving lead to Firebase...');

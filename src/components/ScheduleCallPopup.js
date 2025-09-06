@@ -64,7 +64,8 @@ const ScheduleCallPopup = ({ isOpen, onClose }) => {
         phone: formData.phone,
         subject: 'Schedule Call Request',
         message: 'Customer requested a callback through Schedule Call popup',
-        source: 'Schedule Call Popup'
+        status: 'unread',
+        leadType: 'Schedule Call Popup'
       };
       
       console.log('💾 Saving lead to Firebase...');

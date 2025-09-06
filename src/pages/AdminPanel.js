@@ -155,8 +155,8 @@ const AdminPanel = () => {
 
   const exportLeads = () => {
     const csvContent = "data:text/csv;charset=utf-8," 
-      + "Name,Email,Phone,Subject,Message,Source,Date\n"
-      + leads.map(lead => `"${lead.name}","${lead.email || 'N/A'}","${lead.phone}","${lead.subject || 'N/A'}","${lead.message || 'N/A'}","${lead.source || 'Unknown'}","${lead.date}"`).join("\n");
+      + "Name,Email,Phone,Subject,Message,Status,Date\n"
+      + leads.map(lead => `"${lead.name}","${lead.email || 'N/A'}","${lead.phone}","${lead.subject || 'N/A'}","${lead.message || 'N/A'}","${lead.status || 'unread'}","${new Date(lead.timestamp || lead.date).toLocaleString()}"`).join("\n");
     
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
@@ -199,6 +199,16 @@ const AdminPanel = () => {
       month,
       count: leadsByMonth[index]
     }));
+  };
+
+  const toggleLeadStatus = (leadId, currentStatus) => {
+    const updatedLeads = leads.map(lead => {
+      if (lead.id === leadId) {
+        return { ...lead, status: currentStatus === 'read' ? 'unread' : 'read' };
+      }
+      return lead;
+    });
+    setLeads(updatedLeads);
   };
 
   const renderDashboard = () => (
@@ -342,7 +352,7 @@ const AdminPanel = () => {
                   <th>Phone</th>
                   <th>Subject</th>
                   <th>Message</th>
-                  <th>Source</th>
+                  <th>Status</th>
                   <th>Date</th>
                   <th>Actions</th>
                 </tr>
@@ -364,8 +374,12 @@ const AdminPanel = () => {
                         {lead.message ? (lead.message.length > 50 ? lead.message.substring(0, 50) + '...' : lead.message) : 'N/A'}
                       </td>
                       <td>
-                        <span className={`source-badge ${lead.source === 'Schedule Call Popup' ? 'schedule-call' : 'contact-form'}`}>
-                          {lead.source || 'Unknown'}
+                        <span 
+                          className={`status-badge ${lead.status === 'read' ? 'read' : 'unread'}`}
+                          onClick={() => toggleLeadStatus(lead.id, lead.status)}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          {lead.status === 'read' ? '✅ Read' : '📧 Unread'}
                           {lead.offline && <span className="offline-indicator">📴</span>}
                         </span>
                       </td>
