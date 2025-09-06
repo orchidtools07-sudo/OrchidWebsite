@@ -1,4 +1,5 @@
 // For production deployment without backend, use localStorage only
+// In development, check if server is actually running
 const USE_API = process.env.NODE_ENV === 'development';
 const API_BASE_URL = process.env.NODE_ENV === 'production' 
   ? 'https://your-backend-url.com/api' 
@@ -8,15 +9,138 @@ class LeadAPI {
   constructor() {
     this.isOnline = navigator.onLine;
     this.useAPI = USE_API;
+    this.serverAvailable = false;
+    this.serverChecked = false;
+    this.migrationCompleted = localStorage.getItem('leadsMigrated') === 'true';
     this.setupOnlineListener();
+    
+    // Check server availability on initialization
+    if (this.useAPI) {
+      this.initializeWithServer();
+    }
     
     // Debug logging
     console.log('🔧 LeadAPI initialized:', {
       useAPI: this.useAPI,
       environment: process.env.NODE_ENV,
       isOnline: this.isOnline,
-      apiBaseUrl: API_BASE_URL
+      apiBaseUrl: API_BASE_URL,
+      migrationCompleted: this.migrationCompleted
     });
+  }
+
+  async initializeWithServer() {
+    await this.checkServerAvailability();
+    
+    // If server is available and migration not completed, migrate localStorage data
+    if (this.serverAvailable && !this.migrationCompleted) {
+      await this.migrateLocalStorageToServer();
+    }
+  }
+
+  async migrateLocalStorageToServer() {
+    try {
+      console.log('🔄 Starting localStorage to server migration...');
+      const localLeads = JSON.parse(localStorage.getItem('websiteLeads') || '[]');
+      
+      if (localLeads.length === 0) {
+        console.log('📭 No local leads to migrate');
+        localStorage.setItem('leadsMigrated', 'true');
+        this.migrationCompleted = true;
+        return;
+      }
+
+      console.log(`📦 Found ${localLeads.length} local leads to migrate`);
+      
+      // Get existing server leads to avoid duplicates
+      const serverResponse = await this.makeRequest('/leads');
+      const serverLeads = serverResponse.success ? serverResponse.leads : [];
+      const serverEmails = new Set(serverLeads.map(lead => lead.email));
+      
+      // Filter out leads that already exist on server
+      const leadsToMigrate = localLeads.filter(lead => !serverEmails.has(lead.email));
+      
+      if (leadsToMigrate.length === 0) {
+        console.log('✅ All local leads already exist on server');
+        localStorage.setItem('leadsMigrated', 'true');
+        this.migrationCompleted = true;
+        return;
+      }
+
+      console.log(`🚀 Migrating ${leadsToMigrate.length} unique leads to server...`);
+      
+      // Migrate each lead
+      let migratedCount = 0;
+      for (const lead of leadsToMigrate) {
+        try {
+          const response = await this.makeRequest('/leads', {
+            method: 'POST',
+            body: JSON.stringify({
+              name: lead.name,
+              email: lead.email,
+              phone: lead.phone,
+              subject: lead.subject || 'Migrated Lead',
+              message: lead.message || ''
+            })
+          });
+          
+          if (response.success) {
+            migratedCount++;
+            console.log(`✅ Migrated lead: ${lead.name} (${lead.email})`);
+          }
+        } catch (error) {
+          console.error(`❌ Failed to migrate lead ${lead.name}:`, error);
+        }
+      }
+      
+      console.log(`🎉 Migration completed: ${migratedCount}/${leadsToMigrate.length} leads migrated`);
+      localStorage.setItem('leadsMigrated', 'true');
+      this.migrationCompleted = true;
+      
+      // Clear localStorage after successful migration
+      if (migratedCount > 0) {
+        localStorage.removeItem('websiteLeads');
+        console.log('🧹 Cleared localStorage after successful migration');
+      }
+      
+    } catch (error) {
+      console.error('❌ Migration failed:', error);
+    }
+  }
+
+  async checkServerAvailability() {
+    if (this.serverChecked) return this.serverAvailable;
+    
+    try {
+      console.log('🏥 Checking server availability...');
+      const response = await fetch(`${API_BASE_URL}/health`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        signal: AbortSignal.timeout(3000) // 3 second timeout
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        this.serverAvailable = data.success || false;
+        console.log('✅ Server is available:', this.serverAvailable);
+      } else {
+        this.serverAvailable = false;
+        console.log('❌ Server responded with error:', response.status);
+      }
+    } catch (error) {
+      this.serverAvailable = false;
+      console.log('❌ Server is not available:', error.message);
+    }
+    
+    this.serverChecked = true;
+    
+    // If server is not available in development, disable API usage
+    if (!this.serverAvailable && this.useAPI) {
+      console.log('💾 Server unavailable - switching to localStorage mode');
+      this.useAPI = false;
+    }
+    
+    return this.serverAvailable;
   }
 
   setupOnlineListener() {
@@ -60,11 +184,16 @@ class LeadAPI {
   }
 
   async getLeads() {
-    console.log('📋 Getting leads...', { useAPI: this.useAPI, isOnline: this.isOnline });
+    console.log('📋 Getting leads...', { useAPI: this.useAPI, isOnline: this.isOnline, serverAvailable: this.serverAvailable });
     
-    // In production without backend, use localStorage only
-    if (!this.useAPI) {
-      console.log('💾 Using localStorage only (production mode)');
+    // Check server availability first if using API
+    if (this.useAPI) {
+      await this.checkServerAvailability();
+    }
+    
+    // In production without backend, or if server unavailable, use localStorage only
+    if (!this.useAPI || !this.serverAvailable) {
+      console.log('💾 Using localStorage only');
       const localLeads = this.getLocalLeads();
       console.log('📊 Retrieved leads from localStorage:', localLeads.length, 'leads');
       return localLeads;
@@ -76,7 +205,7 @@ class LeadAPI {
         return this.getLocalLeads();
       }
 
-      console.log('🌐 Online - attempting API call');
+      console.log('🌐 Online - fetching from API');
       const response = await this.makeRequest('/leads');
       if (response.success) {
         // Cache leads locally for offline access
@@ -96,9 +225,14 @@ class LeadAPI {
   async submitLead(leadData) {
     console.log('📝 Submitting lead:', leadData);
     
-    // In production without backend, use localStorage only
-    if (!this.useAPI) {
-      console.log('💾 Saving lead directly to localStorage (production mode)');
+    // Check server availability first if using API
+    if (this.useAPI) {
+      await this.checkServerAvailability();
+    }
+    
+    // In production without backend, or if server unavailable, use localStorage only
+    if (!this.useAPI || !this.serverAvailable) {
+      console.log('💾 Saving lead directly to localStorage');
       const savedLead = this.saveLeadDirectly(leadData);
       console.log('✅ Lead saved successfully:', savedLead);
       return savedLead;
@@ -136,9 +270,14 @@ class LeadAPI {
   async deleteLead(leadId) {
     console.log('🗑️ Deleting lead:', leadId);
     
-    // In production without backend, use localStorage only
-    if (!this.useAPI) {
-      console.log('💾 Deleting from localStorage only (production mode)');
+    // Check server availability first if using API
+    if (this.useAPI) {
+      await this.checkServerAvailability();
+    }
+    
+    // In production without backend, or if server unavailable, use localStorage only
+    if (!this.useAPI || !this.serverAvailable) {
+      console.log('💾 Deleting from localStorage only');
       const result = this.deleteLeadLocal(leadId);
       console.log('✅ Lead deleted from localStorage:', result);
       return result;
