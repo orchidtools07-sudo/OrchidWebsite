@@ -369,7 +369,7 @@ const AdminPanel = () => {
                           {lead.offline && <span className="offline-indicator">📴</span>}
                         </span>
                       </td>
-                      <td>{new Date(lead.date).toLocaleString()}</td>
+                      <td>{new Date(lead.timestamp || lead.date).toLocaleString()}</td>
                       <td>
                         {canDeleteLeads() && (
                           <button 

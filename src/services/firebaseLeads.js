@@ -29,6 +29,7 @@ class FirebaseLeadService {
         phone: leadData.phone,
         subject: leadData.subject || 'No subject',
         message: leadData.message || '',
+        source: leadData.source || 'Unknown',
         timestamp: serverTimestamp(),
         status: 'new'
       });

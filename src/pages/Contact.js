@@ -63,7 +63,8 @@ const Contact = () => {
         email: formData.email,
         phone: formData.phone,
         subject: formData.subject,
-        message: formData.message
+        message: formData.message,
+        source: 'Contact Form'
       };
       
       console.log('💾 Saving lead to Firebase...');
