@@ -70,7 +70,15 @@ const ResidentialProjects = () => {
                   src={project.image} 
                   alt={`${project.name} - ${project.description} in ${project.location}`}
                   loading="lazy"
-                  onLoad={(e) => e.target.classList.add('loaded')}
+                  decoding="async"
+                  style={{
+                    transition: 'opacity 0.3s ease',
+                    opacity: 0
+                  }}
+                  onLoad={(e) => {
+                    e.target.style.opacity = 1;
+                    e.target.classList.add('loaded');
+                  }}
                   onError={(e) => {
                     e.target.alt = `Image not available for ${project.name}`;
                     e.target.style.display = 'none';

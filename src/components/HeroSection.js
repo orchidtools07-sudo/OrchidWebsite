@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import HeroVideo from '../images/hero-video.mp4';
+import HeroFallback from '../images/Hero-1.jpg'; // Fallback image
 import './HeroSection.css';
 
 const HeroSection = ({ onContactClick }) => {
@@ -8,6 +9,9 @@ const HeroSection = ({ onContactClick }) => {
   const [currentMediaUrl, setCurrentMediaUrl] = useState('');
   const [isVideo, setIsVideo] = useState(true);
   const [mediaType, setMediaType] = useState('');
+  const [videoLoaded, setVideoLoaded] = useState(false);
+  const [showFallback, setShowFallback] = useState(true);
+  const videoRef = useRef(null);
 
   useEffect(() => {
     // Load saved media info on component mount
@@ -19,6 +23,8 @@ const HeroSection = ({ onContactClick }) => {
       setCurrentMediaUrl(videoUrl);
       setIsVideo(true);
       setMediaType(type || '');
+      setVideoLoaded(false);
+      setShowFallback(true);
     };
 
     // Listen for image updates from admin panel
@@ -58,6 +64,16 @@ const HeroSection = ({ onContactClick }) => {
     }
   };
 
+  const handleVideoLoad = () => {
+    setVideoLoaded(true);
+    setTimeout(() => setShowFallback(false), 500); // Smooth transition
+  };
+
+  const handleVideoError = () => {
+    console.warn('Video failed to load, keeping fallback image');
+    setShowFallback(true);
+  };
+
   const handleExploreProjects = () => {
     navigate('/projects');
   };
@@ -83,14 +99,39 @@ const HeroSection = ({ onContactClick }) => {
         height: '100%', 
         zIndex: 1
       }}>
+        {/* Fallback Image - Always load first for instant display */}
+        <img 
+          className="hero-fallback" 
+          src={HeroFallback} 
+          alt="Hero Background"
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            minWidth: '100%',
+            minHeight: '100%',
+            width: 'auto',
+            height: 'auto',
+            transform: 'translateX(-50%) translateY(-50%)',
+            objectFit: 'cover',
+            opacity: showFallback ? 1 : 0,
+            transition: 'opacity 0.5s ease-in-out',
+            zIndex: 1
+          }}
+        />
+
         {showVideo ? (
           <video 
+            ref={videoRef}
             key={mediaSource} // Force re-render when video changes
             className="hero-video" 
             autoPlay 
             loop 
             muted 
             playsInline
+            preload="metadata" // Only load metadata initially
+            onLoadedData={handleVideoLoad}
+            onError={handleVideoError}
             style={{
               position: 'absolute',
               top: '50%',
@@ -100,7 +141,10 @@ const HeroSection = ({ onContactClick }) => {
               width: 'auto',
               height: 'auto',
               transform: 'translateX(-50%) translateY(-50%)',
-              objectFit: 'cover'
+              objectFit: 'cover',
+              opacity: videoLoaded && !showFallback ? 1 : 0,
+              transition: 'opacity 0.5s ease-in-out',
+              zIndex: 2
             }}
           >
             <source src={mediaSource} type={mediaType || "video/mp4"} />
@@ -121,7 +165,8 @@ const HeroSection = ({ onContactClick }) => {
               width: 'auto',
               height: 'auto',
               transform: 'translateX(-50%) translateY(-50%)',
-              objectFit: 'cover'
+              objectFit: 'cover',
+              zIndex: 2
             }}
           />
         )}
@@ -132,7 +177,7 @@ const HeroSection = ({ onContactClick }) => {
           width: '100%', 
           height: '100%', 
           backgroundColor: 'rgba(0, 0, 0, 0.3)',
-          zIndex: 2
+          zIndex: 3
         }}></div>
       </div>
       
@@ -143,7 +188,7 @@ const HeroSection = ({ onContactClick }) => {
         transform: 'translate(-50%, -50%)', 
         textAlign: 'center', 
         color: 'white',
-        zIndex: 3,
+        zIndex: 4,
         width: '90%',
         maxWidth: '1000px',
         padding: '0 20px'
