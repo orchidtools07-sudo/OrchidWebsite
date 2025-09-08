@@ -3445,7 +3445,6 @@ html {
   font-weight: 600;
   color: #1a1a1a;
   margin: 0 0 8px 0;
-  line-height: 1.3;
 }
 
 .residential-slider .project-location,
@@ -4085,7 +4084,6 @@ html {
 .book-now-btn {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
   gap: 18px;
   background: linear-gradient(135deg, #2B5786 0%, #1e3f5f 50%, #0d1b2a 100%);
   color: white;
@@ -4880,5 +4878,102 @@ html {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .projects-grid {
+    grid-template-columns: 1fr !important;
+    gap: 30px !important;
+    padding: 0 20px !important;
+    justify-items: center !important;
+    align-items: center !important;
+  }
+  
+  .projects-section .projects-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  
+  .project-card {
+    max-width: 350px !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+  }
+  
+  .project-image {
+    height: 200px;
+  }
+  
+  .project-info {
+    padding: 25px 20px;
+  }
+  
+  .project-name {
+    font-size: 1.2rem;
+  }
+  
+  /* Specific fixes for residential and commercial projects sections */
+  .residential-projects .projects-grid,
+  .commercial-projects .projects-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 25px !important;
+  }
+  
+  .residential-projects .project-card,
+  .commercial-projects .project-card {
+    max-width: 320px !important;
+    width: 90% !important;
+    margin: 0 auto !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .projects-grid {
+    padding: 0 15px !important;
+    gap: 20px !important;
+  }
+  
+  .project-card {
+    max-width: 100% !important;
+    width: 95% !important;
+    margin: 0 auto !important;
+  }
+  
+  .project-image {
+    height: 180px;
+  }
+  
+  .project-logo-badge {
+    width: 40px;
+    height: 40px;
+    top: 12px;
+    left: 12px;
+  }
+  
+  .project-logo {
+    font-size: 16px;
+  }
+  
+  .project-info {
+    padding: 20px 15px;
+  }
+  
+  /* Enhanced mobile centering for residential and commercial sections */
+  .residential-projects .projects-grid,
+  .commercial-projects .projects-grid {
+    padding: 0 10px !important;
+    gap: 20px !important;
+  }
+  
+  .residential-projects .project-card,
+  .commercial-projects .project-card {
+    max-width: 280px !important;
+    width: 100% !important;
   }
 }
