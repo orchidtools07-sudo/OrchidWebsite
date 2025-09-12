@@ -1,0 +1,21 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://www.oidpl.com/sitemap.xml
+
+# Disallow admin areas
+Disallow: /admin
+Disallow: /admin/
+
+# Allow important pages
+Allow: /
+Allow: /about
+Allow: /projects
+Allow: /contact
+Allow: /hospitality
+Allow: /mission-vision
+Allow: /certification
+
+# Crawl delay (optional)
+Crawl-delay: 1

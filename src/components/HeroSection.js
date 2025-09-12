@@ -208,7 +208,7 @@ const HeroSection = ({ onContactClick }) => {
             fontSize: 'clamp(1rem, 2.5vw, 1.4rem)', 
             marginBottom: '2.5rem',
             textShadow: '1px 1px 4px rgba(0,0,0,0.8)',
-            lineHeight: '1.5',
+            lineHeight: '1.5', 
             maxWidth: '800px',
             margin: '0 auto 2.5rem auto',
             textAlign: 'center'
@@ -228,7 +228,7 @@ const HeroSection = ({ onContactClick }) => {
               style={{
                 padding: '15px 30px',
                 backgroundColor: '#1e3f5f',
-                color: 'white',
+                color: '#19344f',
                 border: 'none',
                 borderRadius: '8px',
                 fontSize: '1.1rem',

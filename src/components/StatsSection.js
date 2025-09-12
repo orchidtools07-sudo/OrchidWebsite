@@ -12,7 +12,7 @@ const StatsSection = () => {
 
   const animateCounters = () => {
     // Animate counters
-    const targetValues = { families: 1000, projects: 50, experience: 15, rating: 4.9 };
+    const targetValues = { families: 1000, projects: 10, experience: 15, rating: 4.9 };
     const duration = 2000; // 2 seconds
     const steps = 60;
     const stepDuration = duration / steps;

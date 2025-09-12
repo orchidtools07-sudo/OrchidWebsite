@@ -17,6 +17,7 @@ import GlobalBusinessPark from '../images/Commercial/global-businespark.jpg';
 import ShoppingArcade from '../images/Commercial/shopping-arcade.jpg';
 
 // Import logo images
+
 import OrchidCentreLogo from '../images/Logo/orchid-centre-logo.png';
 import OrchidBusinessParkLogo from '../images/Logo/orchid-business-park-logo.png';
 import OrchidGlobalArcadeLogo from '../images/Logo/orchid-global-arcade-logo.png';
